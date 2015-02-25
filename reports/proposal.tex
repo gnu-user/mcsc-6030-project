@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Enhancement of Matrix Multiplication using Parallelization and Evolutionary Strategies}
+\author{Jonathan Gillett}
+\date{February 2015}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{url}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Project Definition}
+
+Matrix multiplication is an operation widely used in numerical analysis and has many real-world applications, being foundational to software such as LAPACK (Linear Algebra PACKage)\cite{lapackweb}. LAPACK provides many common operations for linear algebra, such as matrix multiplication, and has been invaluable to the progress of both science and industry. Furthermore, LAPACK is also critical to the success of MATLAB\cite{matlab2000}, which is one of the most prominent software applications used in both academia and industry.
+
+Given the importance of linear algebraic operations to both academia and industry, it is understandable that any performance improvements to the software that is used to perform these operations will have a significant impact\cite{note2002reducing, coppersmith1987matrix}. This has been evident with the creation of LAPACK\cite{anderson1990lapack}, which provides highly optimized implementations of many common operations for linear equations, including matrix multiplication which is one of the most widely used and important operations.
+
+The purpose of this project will be to focus on the common serial implementations of matrix multiplication and to study the performance benefits of parallel and approximate solutions. Matrix multiplication is a very well defined problem, where the results can be easily confirmed and benchmarked using the tools and techniques demonstrated in class with Python and Numpy.
+
+The project will utilize the programming language Python and performs matrix operations using Numpy, which wraps the optimized operations provided by LAPACK in Python, a modern high-level language\cite{van2011numpy}. All of these concepts are fundamental aspect of the course and the results of this project are highly relevant to real-world applications.
+
+Utilizing Python and Numpy, the project will invovle implementing parallelized versions of the widely used matrix multiplication algorithms provided by the library LAPACK through the use of Numpy. However, given that Python is inherently a single process/single threaded language due to the Global Interpreter Lock (GIL)\cite{beazley2010understanding}, making the operations demonstrated in class parallel in Python will be a challenge and an excellent demonstration of the parallelization techniques such as OpenMP and MPI discussed in class.
+
+Furthermore, in addition to providing parallel implementations in Python, the second focus of the project will involve implementing approximate algorithms for performing matrix multiplications within a tolerance of error for a trade-off in performance. Approximate matrix multiplication algorithms have many real-world applications, where the loss of accuracy is justified by the increase in performance\cite{drineas2006fastI}, especially for large matrices\cite{sarlos2006improved}.
+
+
+
+
+\section{Project Importance}
+
+Matrix multiplication is critical to numerical analysis, and there is much research into improving the performance of this operation, both in terms of the implementation of known algorithms\cite{note2002reducing} and the creation of more optimal algorithms, such as the Strassen and Coppersmith–Winograd algorithms\cite{huss1996implementation, coppersmith1987matrix}.
+
+The most commonly used library for performing matrix multiplication is LAPACK\cite{anderson1990lapack}, which provides highly optimized implementations of linear algebraic operations. For matrix multiplication, the most common algorithms are highly optimized implementations of the naiive method, which has a complexity of $O(N^{3})$ and the Strassen algorithm, which has a complexity of $O(N^{2.8074})$\cite{huss1996implementation}.
+
+As both of these operations are serial in nature, this project will focus on first implementing parallel implementations of common matrix multiplication operations. The GPU provides many opportunities for significant performance improvements through parallelization\cite{fatahalian2004understanding}, in particular as demonstrated by Humphrey, which showed performance improvements of over $2-3$ times that of the highly optimized Intel MKL library\cite{humphrey2010cula}\footnote{Furthermore, this research was conducted prior to the popularization of CUDA and introduction of much more powerful GPUs compared to the slow performance growth of CPUs}.
+
+Lastly, in addition to the potential for significant performance improvements that can be demonstrated in the project by parallel implementations, the second focus will be to experiment with generating approximate matrix multiplication algorithms within a tolerance of error for a trade-off in performance through the use of evolutionary strategies.
+
+
+
+
+\section{Approach}
+
+The first approach to enhancing the performance of matrix multiplication operations will be to implement parallel implementations of common and widely used methods for matrix multiplication. The performance of parallel implementations will then be compared to the serial implementations using a set of defined matrices for all experiments.
+
+Following the parallel implementations, the next approach will be to evaluate the use of evolutionary strategies to attempt to create new algorithms for matrix multiplication. This new algorithm will only provide approximate solutions, but is intended to produce a result much more optimally than exact methods. The new algorithm will rely on the use of approximate solution to matrix multiplication, using the criteria of a margin of error between the resultant matrices from the multiplication and the reference solution matrices defined for experiments.
+
+Evolutionary strategies such as genetic algorithms and genetic programming are often used to solve challenging computational problems\cite{de1989using}, therefore the opportunity is ripe for their application to attempt to improve the performance of approximate matrix multiplication. Similar to other approximate methods of matrix multiplication such as the Monte Carlo\cite{drineas2006fastI, drineas2001fast} and random projection techniques{sarlos2006improved}, the algorithms generated will utilize the randomness of evolutionary strategies to provide an approximate solution rather than an exact mathematical solution.\\
+
+% - Would rely on an algorithm that compares the similarity of matrices (CITE) in order to determine that the new "generated" method for matrix multiplication is within a margin of tolerance\\
+
+
+\subsection{Three Approaches for Enhancing the Performance}
+
+\begin{enumerate}
+\item Parallel implementations of matrix multiplication.
+    \begin{itemize}
+    \item Parallel implementations will be created for the most common and widely used methods for matrix multiplication.
+    \end{itemize}
+    
+\item Parallel implementation utilizing the GPU.
+    \begin{itemize}
+    \item The parallel implementations will be implemented to utilize the performance benefits of the GPU.
+    \end{itemize}
+
+\item Approximate algorithms using evolutionary strategies.
+    \begin{itemize}
+    \item Evolutionary strategies will be utilized to generate algorithms for computing approximate matrix multiplication.
+    \end{itemize}
+\end{enumerate}
+
+
+
+
+\section{Methodology}
+
+In order to complete this project the methodology will consist of first determining a set of suitable matrices of different sizes so that the benchmarking is consistent and produces accurate results. Following this a framework for testing the various matrix multiplication implementations will be produced to automate the testing of any new implementation against a set of matrices determined for the experiments. Lastly, each of the proposed approaches will be evaluated and each implementation will be benchmarked and compared to the base results of the serial implementations.\\
+
+
+\subsection{Detailed Breakdown of Planned Methodology}
+
+\begin{enumerate}
+\item In order to perform the benchmark results accurately and consistently a set of suitable matrices of different sizes will be determined based on research into what is widely used within HPC for testing and benchmarking.
+
+\item Using the matrices for experiments a set of techniques for determining the similarity of approximate solution matrices will be determined so that algorithms tested which result in approximate solutions can be evaluated.
+
+\item A Python framework will be created which will be able to bootstrap and execute all of the tests and record all the results for the different calculations. This will be used to consistently perform the tests of the parallel and approximate matrix multiplication solutions and evaluate the results.
+
+\item The serial algorithms will be implemented using Numpy and tested using the framework to create a base reference for the performance of the serial implementations.
+
+\item Parallel versions of the serial algorithms will be implemented using Numpy and tested using the framework. The results will be compared to the performance of the base serial implementations.
+
+\item Evolutionary strategies will be used to attempt to create new algorithms for matrix multiplication that does not result in exact results, but rather approximations of the actual solution. Again, Numpy will be used for the matrix data structures so that any results are as consistent as possible.
+
+\item The framework will be used repeatedly to test evolved approximate matrix multiplication algorithms in order to constantly evolve the generated multiplication algorithms until it is within a margin or error.
+
+\item All techniques will be compared against each other using the framework and the performance results and the margin of error for the approximate solutions will be recorded.
+\end{enumerate}
+
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
