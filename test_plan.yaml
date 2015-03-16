@@ -1,0 +1,11 @@
+name: matrix multiplication test plan
+description: >
+    An assortment of matrix multiplication tests with square matrices of
+    dimensions: 100, 500, and 1000 with integers, booleans, and floats
+    uniformly distributed.
+code: all
+trials: 10
+test_plan:
+    - assorted_mult_bool
+    - assorted_mult_int
+    - assorted_mult_float
