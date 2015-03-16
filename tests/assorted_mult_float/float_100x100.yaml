@@ -1,0 +1,12 @@
+name: 100x100 floating point matrix
+description: >
+    100x100 matrix multiplication of uniformly distributed floats [0, 1).
+metrics:
+    - time
+input:
+    - float_100x100_in1
+    - float_100x100_in2
+output:
+    - float_100x100_out
+comparison:
+    - exact
