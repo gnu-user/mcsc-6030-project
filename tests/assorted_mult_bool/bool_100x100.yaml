@@ -1,0 +1,12 @@
+name: 100x100 boolean matrix
+description: >
+    100x100 matrix multiplication of uniformly distributed booleans.
+metrics:
+    - time
+input:
+    - bool_100x100_in1
+    - bool_100x100_in2
+output:
+    - bool_100x100_out
+comparison:
+    - exact
