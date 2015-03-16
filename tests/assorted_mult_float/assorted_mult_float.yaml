@@ -1,0 +1,8 @@
+name: assorted floating point matrix multiplication
+description: >
+    An assortment of matrix multiplication tests with square matrices of
+    dimensions: 100, 500, and 1000 with uniformly distributed floats [0, 1).
+tests:
+    - float_100x100
+    - float_500x500
+    - float_1000x1000
