@@ -1,6 +1,6 @@
 name: 100x100 integer matrix
 description: >
-    100x100 matrix multiplication of uniformly distribution ints from 0 to 100.
+    100x100 matrix multiplication of uniformly distributed ints from 0 to 100.
 metrics:
     - time
 input:
