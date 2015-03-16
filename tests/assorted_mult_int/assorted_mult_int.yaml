@@ -1,0 +1,9 @@
+name: assorted integer matrix multiplication
+description: >
+    An assortment of matrix multiplication tests with square matrices of
+    dimensions: 100, 500, and 1000 with uniformly distributed ints from
+    0 to 100.
+tests:
+    - int_100x100
+    - int_500x500
+    - int_1000x1000
