@@ -1,0 +1,8 @@
+name: assorted boolean matrix multiplication
+description: >
+    An assortment of matrix multiplication tests with square matrices of
+    dimensions: 100, 500, and 1000 with uniformly distributed booleans.
+tests:
+    - bool_100x100
+    - bool_500x500
+    - bool_1000x1000
