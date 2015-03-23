@@ -33,7 +33,7 @@ def timing(f):
         time1 = time.time()
         ret = f(*args)
         time2 = time.time()
-        print '%s function took %0.3f ms' % (f.func_name, (time2-time1)*1000.0)
+        print '%s function took %0.3f seconds' % (f.func_name, (time2-time1))
         return ret
     return wrap
 
@@ -82,5 +82,6 @@ schema = Schema({
     '<n>': Use(int, error='Matrix dimensions must be an integer.'),
     '--dtype': Use(str, error='--dtype=<type> must be a valid numpy data type.'),
     '--dist': Or(None, Use(str, error='--dist=<name> must be a valid distribution.')),
-    '--sparse': Or(None, Use(float, error='--sparse=<val> must be a floating point value.'))
+    '--sparse': Or(None, Use(float, error='--sparse=<val> must be a floating point value.')),
+    '--help': Or(None, Use(bool))
 })
