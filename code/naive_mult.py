@@ -12,7 +12,7 @@ def naive_mult(A, B, C):
 A = np.round(100*np.random.rand(100, 100)).astype('i')
 B = np.round(100*np.random.rand(100, 100)).astype('i')
 C = np.zeros([100, 100], dtype=np.int32)
-naiive_mult(A, B, C)
+naive_mult(A, B, C)
 D = np.dot(A, B)
 
 print "Is C == D?", np.array_equal(C, D)
