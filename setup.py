@@ -20,6 +20,7 @@ setup(
     url='https://bitbucket.org/gnu-user/mcsc-6030-projecct',
     install_requires=[
         'docopt',
+        'schema',
         'numpy',
         'scipy',
         'mpi4py'
