@@ -24,3 +24,10 @@ Getting Started
 1.  In order to build the reports containing the results of this project please
     execute the Makefile in the **reports/** folder, by default this will
     generate all of the progress reports for this project.
+
+
+License
+---------------------------
+
+All of the source code in this repository, is licensed under the 
+[GNU General Public License, Version 3](http://www.gnu.org/licenses/gpl.html)
