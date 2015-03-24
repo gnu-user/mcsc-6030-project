@@ -23,9 +23,11 @@
 #
 ###############################################################################
 import yaml
-from os import path
+from math import ceil, floor
+from os import path, popen
 from docopt import docopt
 from schema import Schema, Or, And, Use, SchemaError
+from clint.textui import puts, progress, colored, indent, columns
 
 
 usage = """Test Framework
@@ -54,6 +56,29 @@ schema = Schema({
 })
 
 
+class PrettyPrint(object):
+    """Prints the text for the test framework to the screen prettily."""
+    _col2 = 15  # Default width for second column
+
+    def __init__(self, verbose=False, col1=None, col2=None):
+        """Initializes object, optionally can set widths of columns."""
+        self.verbose = verbose
+        self.rows, self.cols = map(int, popen('stty size', 'r').read().split())
+        self.col1 = self.cols - 15 if col1 is None else col1
+        self.col2 = self._col2 if col2 is None else col2
+
+    def print_summary(self, test_plan):
+        """Print the summary of the test plan."""
+        pass
+
+    def print_title(self, title, symbol="-"):
+        """Displays the title/heading for each section."""
+        lpad = int(floor((self.col1 - len(title) - len(' Test Plan')) / 2)) - 1
+        rpad = int(floor((self.col1 - len(title) - len(' Test Plan')) / 2)) - 1
+        puts(symbol * self.col1)
+        puts(symbol + ' ' * lpad + title + ' Test Plan' + ' ' * rpad + symbol)
+        puts(symbol * self.col1 + '\n')
+
 if __name__ == '__main__':
     args = docopt(usage)
     try:
@@ -61,4 +86,14 @@ if __name__ == '__main__':
     except SchemaError as e:
         exit(e)
 
-    print args
+    # Load the test plan
+    test_plan = None
+    try:
+        with open(args['TEST_PLAN'], 'r') as stream:
+            test_plan = yaml.load(stream)
+    except Exception as e:
+        print "Error parsing test plan!"
+        exit(e)
+
+    pretty = PrettyPrint()
+    pretty.print_title('Derpy mcDerp', symbol="=")
