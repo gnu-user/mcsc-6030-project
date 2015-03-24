@@ -69,7 +69,22 @@ class PrettyPrint(object):
 
     def print_summary(self, test_plan):
         """Print the summary of the test plan."""
-        pass
+        if self.verbose:
+            puts(colored.cyan('Description:'))
+            with indent(4):
+                puts(columns([test_plan['description'], self.col1]))
+
+        puts(colored.cyan('Codes:'))
+        with indent(4):
+            for code in test_plan['codes']:
+                puts(code['name'])
+        puts()
+
+        puts(colored.cyan('Tests:'))
+        with indent(4):
+            for test in test_plan['tests']:
+                puts(test['name'])
+        puts()
 
     def print_title(self, title, symbol="-"):
         """Displays the title/heading for each section."""
@@ -95,5 +110,6 @@ if __name__ == '__main__':
         print "Error parsing test plan!"
         exit(e)
 
-    pretty = PrettyPrint()
+    pretty = PrettyPrint(verbose=True)
     pretty.print_title('Derpy mcDerp', symbol="=")
+    pretty.print_summary(test_plan)
