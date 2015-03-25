@@ -168,17 +168,27 @@ if __name__ == '__main__':
     pretty.title(testplan['name'])
     pretty.summary(testplan)
 
-    # Execute each test in the test plan
+    # Execute each test in the test plan and store the results
+    results = OrderedDict()
     for test in testplan['testplan']:
         name, trials = test['test'], test['trials']
+        results[name] = {}
         pretty.heading(name)
         pretty.test_summary(tests[name], trials)
 
         for dim in tests[name]['dimensions']:
             puts(colored.cyan(str(dim) + ':'))
             for code_name, code in codes.iteritems():
+                # The results for this test
+                results[name][code_name] = OrderedDict()
+                results[name][code_name][str(dim)] = []
+
                 for i in progress.bar(range(trials), label=pretty.progress(code_name), width=10):
-                    # Execute the test, record the results
+                    # Execute the test, record the execution time
                     bin = path.join(args['--code'], code['file'])
                     p = Popen([sys.executable, bin, str(dim), '--dtype=' + tests[name]['type']], stdout=PIPE)
                     output, err = p.communicate()
+                    # Store the results of each trial
+                    results[name][code_name][str(dim)].append(float(output))
+
+    print "RESULTS:", results
