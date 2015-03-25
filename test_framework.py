@@ -23,7 +23,10 @@
 #
 ###############################################################################
 import yaml
-from math import ceil, floor
+from math import floor
+from time import sleep
+from random import random
+from collections import OrderedDict
 from os import path, popen
 from docopt import docopt
 from schema import Schema, Or, And, Use, SchemaError
@@ -58,16 +61,16 @@ schema = Schema({
 
 class PrettyPrint(object):
     """Prints the text for the test framework to the screen prettily."""
-    _col2 = 15  # Default width for second column
+    _col2 = 16  # Default width for second column
 
     def __init__(self, verbose=False, col1=None, col2=None):
         """Initializes object, optionally can set widths of columns."""
         self.verbose = verbose
         self.rows, self.cols = map(int, popen('stty size', 'r').read().split())
-        self.col1 = self.cols - 15 if col1 is None else col1
+        self.col1 = self.cols - self._col2 if col1 is None else col1
         self.col2 = self._col2 if col2 is None else col2
 
-    def print_summary(self, test_plan):
+    def summary(self, test_plan):
         """Print the summary of the test plan."""
         if self.verbose:
             puts(colored.cyan('Description:'))
@@ -75,24 +78,54 @@ class PrettyPrint(object):
                 puts(columns([test_plan['description'], self.col1]))
 
         puts(colored.cyan('Codes:'))
-        with indent(4):
-            for code in test_plan['codes']:
-                puts(code['name'])
+        if self.verbose:
+            with indent(4):
+                for code in test_plan['codes']:
+                    puts(colored.magenta(code['name']))
+                    with indent(4):
+                        puts(columns([code['description'], self.col1]))
+        else:
+            with indent(4):
+                for code in test_plan['codes']:
+                    puts(code['name'])
+
+        puts(colored.cyan('\nTests:'))
+        if self.verbose:
+            with indent(4):
+                for test in test_plan['tests']:
+                    puts(colored.magenta(test['name']))
+                    with indent(4):
+                        puts(columns([test['description'], self.col1]))
+        else:
+            with indent(4):
+                for test in test_plan['tests']:
+                    puts(test['name'])
         puts()
 
-        puts(colored.cyan('Tests:'))
-        with indent(4):
-            for test in test_plan['tests']:
-                puts(test['name'])
-        puts()
-
-    def print_title(self, title, symbol="-"):
-        """Displays the title/heading for each section."""
+    def title(self, title):
+        """Displays the main testplan heading."""
         lpad = int(floor((self.col1 - len(title) - len(' Test Plan')) / 2)) - 1
-        rpad = int(floor((self.col1 - len(title) - len(' Test Plan')) / 2)) - 1
-        puts(symbol * self.col1)
-        puts(symbol + ' ' * lpad + title + ' Test Plan' + ' ' * rpad + symbol)
-        puts(symbol * self.col1 + '\n')
+        rpad = self.col1 - len(title) - len(' Test Plan') - lpad - 2
+        puts('=' * self.col1)
+        puts('=' + ' ' * lpad + title + ' Test Plan' + ' ' * rpad + '=')
+        puts('=' * self.col1)
+
+    def heading(self, title):
+        """Displays the heading for each test being executed."""
+        lpad = int(floor((self.col1 - len(title) - len('Executing Test ')) / 2)) - 1
+        rpad = self.col1 - len(title) - len('Executing Test ') - lpad - 2
+        puts('-' * self.col1)
+        puts('-' + ' ' * lpad + 'Executing ' + title + ' Test' + ' ' * rpad + '-')
+        puts('-' * self.col1)
+
+    def test_summary(self, test, trials):
+        puts(colored.cyan('Trials: ') + str(trials))
+        puts(colored.cyan('Dimensions: ') + str(test['dimensions']))
+        if self.verbose:
+            puts(colored.cyan('Description:'))
+            with indent(4):
+                puts(columns([test['description'], self.col1]))
+
 
 if __name__ == '__main__':
     args = docopt(usage)
@@ -102,14 +135,40 @@ if __name__ == '__main__':
         exit(e)
 
     # Load the test plan
-    test_plan = None
+    testplan = None
     try:
         with open(args['TEST_PLAN'], 'r') as stream:
-            test_plan = yaml.load(stream)
+            testplan = yaml.load(stream)
     except Exception as e:
         print "Error parsing test plan!"
         exit(e)
 
-    pretty = PrettyPrint(verbose=True)
-    pretty.print_title('Derpy mcDerp', symbol="=")
-    pretty.print_summary(test_plan)
+    # Store the codes and tests as ordered dictionaries
+    codes = OrderedDict()
+    tests = OrderedDict()
+    for code in testplan['codes']:
+        codes[code['name']] = {'description': code['description'],
+                               'file': code['file'],
+                               'exec': code['exec']}
+    for test in testplan['tests']:
+        tests[test['name']] = {'description': test['description'],
+                               'dimensions': test['dimensions']}
+
+    pretty = PrettyPrint(verbose=args['--verbose'])
+    pretty.title(testplan['name'])
+    pretty.summary(testplan)
+
+    for test in testplan['testplan']:
+        name, code, trials = test['test'], test['code'], test['trials']
+        pretty.heading(name)
+        pretty.test_summary(tests[name], trials)
+
+        for dimension in tests[name]['dimensions']:
+            puts(colored.cyan(str(dimension) + ':'))
+            for name, code in codes.iteritems():
+                with progress.Bar(label=' '*4 + name + ' '*32, width=16, expected_size=10) as bar:
+                    for i in range(10):
+                        sleep(random() * 0.2)
+                        bar.show(i)
+
+
