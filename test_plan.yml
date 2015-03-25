@@ -1,10 +1,10 @@
-name: matrix multiplication test plan
+name: Matrix Multipltication
 description: >
     An assortment of matrix multiplication tests with square matrices of
     dimensions: 100, 500, and 1000 with integers, booleans, and floats
     uniformly distributed.
-# The code to execute for the tests 
-code:
+# The codes to execute for the tests 
+codes:
     # The Baseline test to compare the other results to, done using numpy
     - name: baseline
       description: Baseline multiplication using NumPy
@@ -33,7 +33,7 @@ tests:
           dimensions 100, 500, and 1000 with uniformly distributed floats [0, 1).
       dimensions: [100, 500, 1000]
 # The test plan, for each test which code to execute
-test_plan:
+testplan:
     - test: assorted_bool
       code: all
       trials: 10
