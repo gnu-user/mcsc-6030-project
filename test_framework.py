@@ -24,15 +24,14 @@
 ###############################################################################
 import yaml
 from math import floor
-from time import sleep
-from random import random
 from collections import OrderedDict
-from os import path, popen
 import sys
+from os import path, popen
 from subprocess import Popen, PIPE
 from docopt import docopt
 from schema import Schema, Or, And, Use, SchemaError
 from clint.textui import puts, progress, colored, indent, columns
+from tabulate import tabulate
 
 
 usage = """Test Framework
@@ -86,7 +85,7 @@ class PrettyPrint(object):
                 for code in test_plan['codes']:
                     puts(colored.magenta(code['name']))
                     with indent(self._tab):
-                        puts(columns([code['description'], self.col1-self._tab*2]))
+                        puts(columns([code['description'] + '\n', self.col1-self._tab*2]))
         else:
             with indent(self._tab):
                 for code in test_plan['codes']:
@@ -103,14 +102,14 @@ class PrettyPrint(object):
             with indent(self._tab):
                 for test in test_plan['tests']:
                     puts(test['name'])
-        puts()
+            puts()
 
-    def title(self, title):
+    def title(self, title, end='Test Plan'):
         """Displays the main testplan heading."""
-        lpad = int(floor((self.col1 - len(title) - len(' Test Plan')) / 2)) - 1
-        rpad = self.col1 - len(title) - len(' Test Plan') - lpad - 2
-        puts('=' * self.col1)
-        puts('=' + ' ' * lpad + title + ' Test Plan' + ' ' * rpad + '=')
+        lpad = int(floor((self.col1 - len(title) - len(' ' + end)) / 2)) - 1
+        rpad = self.col1 - len(title) - len(' ' + end) - lpad - 2
+        puts('\n' + '=' * self.col1)
+        puts('=' + ' ' * lpad + title + ' ' + end + ' ' * rpad + '=')
         puts('=' * self.col1)
 
     def heading(self, title):
@@ -134,6 +133,26 @@ class PrettyPrint(object):
         lpad = self._tab
         rpad = self.col1 - len(name) - lpad
         return ' ' * lpad + name + ' ' * rpad
+
+    def table(self, data):
+        """Prints a pretty table of the data, where each key is a column, and
+           the value is an iterable for the rows of data.
+        """
+        puts(tabulate(data, headers="keys", tablefmt="grid", floatfmt=".3f"))
+
+
+# TODO: Clean this up, should be part of a class
+def gen_summary(results, codes):
+    """Creates a dictionary summarizing the results of execution times."""
+    summary = OrderedDict()
+    summary['codes'] = list(codes.keys())
+    for test, result in results.iteritems():
+        summary[test] = []
+        for i, code in enumerate(result):
+            summary[test].append(0)
+            for times in result[code].values():
+                summary[test][i] += sum(times) / float(len(times))
+    return summary
 
 
 if __name__ == '__main__':
@@ -172,7 +191,7 @@ if __name__ == '__main__':
     results = OrderedDict()
     for test in testplan['testplan']:
         name, trials = test['test'], test['trials']
-        results[name] = {}
+        results[name] = OrderedDict()
         pretty.heading(name)
         pretty.test_summary(tests[name], trials)
 
@@ -185,10 +204,12 @@ if __name__ == '__main__':
 
                 for i in progress.bar(range(trials), label=pretty.progress(code_name), width=10):
                     # Execute the test, record the execution time
-                    bin = path.join(args['--code'], code['file'])
-                    p = Popen([sys.executable, bin, str(dim), '--dtype=' + tests[name]['type']], stdout=PIPE)
+                    p = Popen([sys.executable, path.join(args['--code'], code['file']),
+                              str(dim), '--dtype=' + tests[name]['type']], stdout=PIPE)
                     output, err = p.communicate()
                     # Store the results of each trial
                     results[name][code_name][str(dim)].append(float(output))
 
-    print "RESULTS:", results
+    # Display the descriptive statistics of the results
+    pretty.title(testplan['name'], end='Runtime Summary')
+    pretty.table(gen_summary(results, codes))
