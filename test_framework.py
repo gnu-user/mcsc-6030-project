@@ -28,6 +28,8 @@ from time import sleep
 from random import random
 from collections import OrderedDict
 from os import path, popen
+import sys
+from subprocess import Popen, PIPE
 from docopt import docopt
 from schema import Schema, Or, And, Use, SchemaError
 from clint.textui import puts, progress, colored, indent, columns
@@ -36,13 +38,13 @@ from clint.textui import puts, progress, colored, indent, columns
 usage = """Test Framework
 
 Usage:
-  test_framework.py [-v | --verbose] --code=<dir> TEST_PLAN
+  test_framework.py [-v | --verbose] --code=<dir> TESTPLAN
   test_framework.py -h | --help
 
   Executes the test plan and evaluates the code in the directory.
 
 Arguments:
-  TEST_PLAN     The test plan YAML document.
+  TESTPLAN       The test plan YAML document.
 
 Options:
   -h, --help     Show this screen and exit.
@@ -53,7 +55,7 @@ Options:
 
 schema = Schema({
     '--code': And(path.exists, error='Code directory does not exist.'),
-    'TEST_PLAN': And(path.exists, error='Test plan does not exist.'),
+    'TESTPLAN': And(path.exists, error='Test plan does not exist.'),
     '--help': Or(None, Use(bool)),
     '--verbose': Or(None, Use(bool))
 })
@@ -61,7 +63,8 @@ schema = Schema({
 
 class PrettyPrint(object):
     """Prints the text for the test framework to the screen prettily."""
-    _col2 = 16  # Default width for second column
+    _col2 = 30  # Default width for second column
+    _tab = 3  # Number of space charaters for tab
 
     def __init__(self, verbose=False, col1=None, col2=None):
         """Initializes object, optionally can set widths of columns."""
@@ -74,30 +77,30 @@ class PrettyPrint(object):
         """Print the summary of the test plan."""
         if self.verbose:
             puts(colored.cyan('Description:'))
-            with indent(4):
-                puts(columns([test_plan['description'], self.col1]))
+            with indent(self._tab):
+                puts(columns([test_plan['description'], self.col1-self._tab]))
 
         puts(colored.cyan('Codes:'))
         if self.verbose:
-            with indent(4):
+            with indent(self._tab):
                 for code in test_plan['codes']:
                     puts(colored.magenta(code['name']))
-                    with indent(4):
-                        puts(columns([code['description'], self.col1]))
+                    with indent(self._tab):
+                        puts(columns([code['description'], self.col1-self._tab*2]))
         else:
-            with indent(4):
+            with indent(self._tab):
                 for code in test_plan['codes']:
                     puts(code['name'])
 
-        puts(colored.cyan('\nTests:'))
+        puts(colored.cyan('Tests:'))
         if self.verbose:
-            with indent(4):
+            with indent(self._tab):
                 for test in test_plan['tests']:
                     puts(colored.magenta(test['name']))
-                    with indent(4):
-                        puts(columns([test['description'], self.col1]))
+                    with indent(self._tab):
+                        puts(columns([test['description'], self.col1-self._tab*2]))
         else:
-            with indent(4):
+            with indent(self._tab):
                 for test in test_plan['tests']:
                     puts(test['name'])
         puts()
@@ -114,7 +117,7 @@ class PrettyPrint(object):
         """Displays the heading for each test being executed."""
         lpad = int(floor((self.col1 - len(title) - len('Executing Test ')) / 2)) - 1
         rpad = self.col1 - len(title) - len('Executing Test ') - lpad - 2
-        puts('-' * self.col1)
+        puts('\n' + '-' * self.col1)
         puts('-' + ' ' * lpad + 'Executing ' + title + ' Test' + ' ' * rpad + '-')
         puts('-' * self.col1)
 
@@ -123,8 +126,14 @@ class PrettyPrint(object):
         puts(colored.cyan('Dimensions: ') + str(test['dimensions']))
         if self.verbose:
             puts(colored.cyan('Description:'))
-            with indent(4):
-                puts(columns([test['description'], self.col1]))
+            with indent(self._tab):
+                puts(columns([test['description'], self.col1-self._tab]))
+
+    def progress(self, name):
+        """Returns a label for progress bar so it's properly aligned."""
+        lpad = self._tab
+        rpad = self.col1 - len(name) - lpad
+        return ' ' * lpad + name + ' ' * rpad
 
 
 if __name__ == '__main__':
@@ -137,7 +146,7 @@ if __name__ == '__main__':
     # Load the test plan
     testplan = None
     try:
-        with open(args['TEST_PLAN'], 'r') as stream:
+        with open(args['TESTPLAN'], 'r') as stream:
             testplan = yaml.load(stream)
     except Exception as e:
         print "Error parsing test plan!"
@@ -152,23 +161,24 @@ if __name__ == '__main__':
                                'exec': code['exec']}
     for test in testplan['tests']:
         tests[test['name']] = {'description': test['description'],
-                               'dimensions': test['dimensions']}
+                               'dimensions': test['dimensions'],
+                               'type': test['type']}
 
     pretty = PrettyPrint(verbose=args['--verbose'])
     pretty.title(testplan['name'])
     pretty.summary(testplan)
 
+    # Execute each test in the test plan
     for test in testplan['testplan']:
-        name, code, trials = test['test'], test['code'], test['trials']
+        name, trials = test['test'], test['trials']
         pretty.heading(name)
         pretty.test_summary(tests[name], trials)
 
-        for dimension in tests[name]['dimensions']:
-            puts(colored.cyan(str(dimension) + ':'))
-            for name, code in codes.iteritems():
-                with progress.Bar(label=' '*4 + name + ' '*32, width=16, expected_size=10) as bar:
-                    for i in range(10):
-                        sleep(random() * 0.2)
-                        bar.show(i)
-
-
+        for dim in tests[name]['dimensions']:
+            puts(colored.cyan(str(dim) + ':'))
+            for code_name, code in codes.iteritems():
+                for i in progress.bar(range(trials), label=pretty.progress(code_name), width=10):
+                    # Execute the test, record the results
+                    bin = path.join(args['--code'], code['file'])
+                    p = Popen([sys.executable, bin, str(dim), '--dtype=' + tests[name]['type']], stdout=PIPE)
+                    output, err = p.communicate()
