@@ -13,7 +13,7 @@ codes:
     # Naive implementation that operates on each row, column
     - name: naive
       description: Naive multiplicatin with O(n^3) complexity
-      file: naive_ijk.py
+      file: naive.py
       exec: python2
 # The test data sets to execute the code against
 tests:
@@ -21,25 +21,25 @@ tests:
       description: >
           An assortment of matrix multiplication tests with square matrices of
           dimensions 100, 500, and 1000 with uniformly distributed booleans.
-      dimensions: [100, 500, 1000]
+      dimensions: [25, 50, 75]
+      type: bool
     - name: assorted_int
       description: >
           An assortment of matrix multiplication tests with square matrices of
           dimensions 100, 500, and 1000 with uniformly distributed ints.
-      dimensions: [100, 500, 1000]
+      dimensions: [25, 50, 75]
+      type: int32
     - name: assorted_float
       description: >
           An assortment of matrix multiplication tests with square matrices of
           dimensions 100, 500, and 1000 with uniformly distributed floats [0, 1).
-      dimensions: [100, 500, 1000]
+      dimensions: [25, 50, 75]
+      type: float
 # The test plan, for each test which code to execute
 testplan:
     - test: assorted_bool
-      code: all
       trials: 10
     - test: assorted_int
-      code: all
       trials: 10
     - test: assorted_float
-      code: all
       trials: 10
