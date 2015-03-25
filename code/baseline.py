@@ -21,14 +21,10 @@
 #
 ###############################################################################
 import numpy as np
+from time import time
 from docopt import docopt
 from helpers import gen_matrix, timing, usage, schema
 from schema import SchemaError
-
-
-def baseline(A, B):
-    return np.dot(A, B)
-
 
 if __name__ == '__main__':
     args = docopt(usage)
@@ -41,4 +37,9 @@ if __name__ == '__main__':
     dim, dtype = args['DIM'], args['--dtype']
     A = gen_matrix(dim, dtype)
     B = gen_matrix(dim, dtype)
-    C = baseline(A, B)
+
+    # Calculate the execution time for the baseline
+    start = time()
+    C = np.dot(A, B)
+    end = time()
+    print "%0.3f" % (end-start,)

@@ -30,10 +30,10 @@ from schema import Schema, Or, Use
 def timing(f):
     """Helpful decorator to get runtime of functions"""
     def wrap(*args):
-        time1 = time.time()
+        start = time.time()
         ret = f(*args)
-        time2 = time.time()
-        print '%s function took %0.3f seconds' % (f.func_name, (time2-time1))
+        end = time.time()
+        print '%s function took %0.3f seconds' % (f.func_name, (end-start))
         return ret
     return wrap
 
