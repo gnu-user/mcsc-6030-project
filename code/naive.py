@@ -27,7 +27,6 @@ from helpers import gen_matrix, timing, usage, schema
 from schema import SchemaError
 
 
-@timing
 def naive(A, B, C):
     """Computes the matrix multiplication using the naive approach"""
     for i in range(A.shape[0]):
@@ -44,10 +43,10 @@ if __name__ == '__main__':
         exit(e)
 
     # Generate the dynamic matrices for the test
-    m, n, dtype = args['<m>'], args['<n>'], args['--dtype']
-    A = gen_matrix(m, n, dtype)
-    B = gen_matrix(m, n, dtype)
-    C = np.zeros([m, n], dtype=dtype)
+    dim, dtype = args['DIM'], args['--dtype']
+    A = gen_matrix(dim, dtype)
+    B = gen_matrix(dim, dtype)
+    C = np.zeros([dim, dim], dtype=dtype)
     naive(A, B, C)
     D = np.dot(A, B)
 

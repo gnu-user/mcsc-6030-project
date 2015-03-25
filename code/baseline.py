@@ -26,7 +26,6 @@ from helpers import gen_matrix, timing, usage, schema
 from schema import SchemaError
 
 
-@timing
 def baseline(A, B):
     return np.dot(A, B)
 
@@ -39,7 +38,7 @@ if __name__ == '__main__':
         exit(e)
 
     # Generate the dynamic matrices for the test
-    m, n, dtype = args['<m>'], args['<n>'], args['--dtype']
-    A = gen_matrix(m, n, dtype)
-    B = gen_matrix(m, n, dtype)
+    dim, dtype = args['DIM'], args['--dtype']
+    A = gen_matrix(dim, dtype)
+    B = gen_matrix(dim, dtype)
     C = baseline(A, B)
