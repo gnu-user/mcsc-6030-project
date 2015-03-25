@@ -21,6 +21,9 @@ setup(
     install_requires=[
         'docopt',
         'schema',
+        'pyyaml',
+        'clint',
+        'tabulate',
         'numpy',
         'scipy',
         'mpi4py'
