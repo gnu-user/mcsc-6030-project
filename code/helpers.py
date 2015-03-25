@@ -39,33 +39,35 @@ def timing(f):
 
 
 # TODO: Add full support for types; support distribution types and sparse matrices
-def gen_matrix(m, n, dtype, dist='uniform', sparse=1.00):
+def gen_matrix(dim, dtype, dist='uniform', sparse=1.00):
     """Generates a dynamic matrix given the parameters specified.
 
-    :param m: The m dimension of the matrix
-    :param n: The n dimension of the matrix
+    :param dim: The dimension of the square matrix
     :param dtype: The data type must be supported by numpy
     :param dist: The distribution must be one of zero, uniform, normal, weibull, poisson
     :param sparse: The sparsity of the matrix
     """
     if dtype == 'int32':
-        return np.int32(np.random.random_integers(1, 100, (m, n)))
+        return np.int32(np.random.random_integers(1, 100, (dim, dim)))
     elif dtype == 'bool':
-        A = np.random.rand(m, n)
+        A = np.random.rand(dim, dim)
         A[A < 0.5] = 0
         A[A >= 0.5] = 1
         A = A.astype('bool')
         return A
     elif dtype == 'float':
-        return np.random.rand(m, n)
+        return np.random.rand(dim, dim)
 
 
 # The docopt string for command line usage of all benchmark programs
 usage = """Benchmarks
 
 Usage:
-  benchmark.py <m> <n> --dtype=<type> [--dist=<name> --sparse=<val>]
+  benchmark.py --dtype=<type> [--dist=<name> --sparse=<val>] DIM
   benchmark.py -h | --help
+
+Arguments:
+  DIM             The dimension of the square matrix
 
 Options:
   -h, --help      Show this screen and exit.
@@ -78,8 +80,7 @@ Options:
 # The schema for validating the command line arguments
 # TODO: Add better validation for numpy type provided, stat. distribution, sparsity
 schema = Schema({
-    '<m>': Use(int, error='Matrix dimensions must be an integer.'),
-    '<n>': Use(int, error='Matrix dimensions must be an integer.'),
+    'DIM': Use(int, error='Matrix dimension must be an integer.'),
     '--dtype': Use(str, error='--dtype=<type> must be a valid numpy data type.'),
     '--dist': Or(None, Use(str, error='--dist=<name> must be a valid distribution.')),
     '--sparse': Or(None, Use(float, error='--sparse=<val> must be a floating point value.')),
