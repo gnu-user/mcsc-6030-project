@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 from setuptools import setup
 
 
@@ -14,7 +15,7 @@ setup(
     Research project to evaluate strategies for the enhancement of matrix
     multiplcation using parallelization and evolutionary strategies.
     ''',
-    long_description=read('README.md'),
+    long_description=read('../README.md'),
     author='Jonathan Gillett',
     author_email='jonathan.gillett@uoit.ca',
     url='https://bitbucket.org/gnu-user/mcsc-6030-projecct',
@@ -28,6 +29,6 @@ setup(
         'scipy',
         'mpi4py'
     ],
-    license=read('LICENSE'),
+    license=read('../LICENSE'),
     keywords='matrix multiplication, evolutionary strategies, parallelization'
 )
