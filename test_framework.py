@@ -175,9 +175,15 @@ if __name__ == '__main__':
     codes = OrderedDict()
     tests = OrderedDict()
     for code in testplan['codes']:
-        codes[code['name']] = {'description': code['description'],
-                               'file': code['file'],
-                               'exec': code['exec']}
+        if 'args' in code:
+            codes[code['name']] = {'description': code['description'],
+                                   'file': code['file'],
+                                   'exec': code['exec'],
+                                   'args': code['args']}
+        else:
+            codes[code['name']] = {'description': code['description'],
+                                   'file': code['file'],
+                                   'exec': code['exec']}
     for test in testplan['tests']:
         tests[test['name']] = {'description': test['description'],
                                'dimensions': test['dimensions'],
@@ -204,8 +210,14 @@ if __name__ == '__main__':
 
                 for i in progress.bar(range(trials), label=pretty.progress(code_name), width=10):
                     # Execute the test, record the execution time
-                    p = Popen([sys.executable, path.join(args['--code'], code['file']),
-                              str(dim), '--dtype=' + tests[name]['type']], stdout=PIPE)
+                    if 'args' in code:
+                        pargs = [code['exec']] + code['args'] +\
+                                [path.join(args['--code'], code['file']),
+                                 '--dtype=' + tests[name]['type'], str(dim)]
+                    else:
+                        pargs = [code['exec'], path.join(args['--code'], code['file']),
+                                 '--dtype=' + tests[name]['type'], str(dim)]
+                    p = Popen(pargs, stdout=PIPE)
                     output, err = p.communicate()
                     # Store the results of each trial
                     results[name][code_name][str(dim)].append(float(output))
