@@ -24,7 +24,7 @@
 ###############################################################################
 import numpy as np
 from mpi4py import MPI
-from math import floor
+from math import ceil
 from time import time
 from docopt import docopt
 from helpers import gen_matrix, usage, schema
@@ -39,43 +39,50 @@ def master(dim, dtype, n_proc, comm):
     A = gen_matrix(dim, dtype)
     B = gen_matrix(dim, dtype)
     C = np.zeros([dim, dim], dtype=dtype)
-    ans = np.zeros([dim, dim], dtype=dtype)
 
     # Broadcast the second matrix to all processes
     comm.Bcast(B, MASTER)
 
     # Divide the rows of the matrix amongst the processes
     row = 0
-    num_rows = floor(dim / (n_proc - 1))
+    num_rows = ceil(dim / (n_proc - 1))
+    ANS = np.zeros([num_rows, dim], dtype=dtype)
+
     for k in range(1, min(dim+1, n_proc)):
         # Send the remainder to the last process
         if k == n_proc - 1:
             comm.Send(A[row::, :], k, tag=row)
+            row += (dim - row)
         else:
             comm.Send(A[row:num_rows, :], k, tag=row)
-        row += num_rows
+            row += num_rows
 
     # Loop and receive the dot product from the processes
     while row > 0:
         status = MPI.Status()
-        comm.Recv(ans, source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, 
+        comm.Recv(ANS, source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, 
                   status=status)
-        row = status.tag
+        last_row = status.tag
         # Handle when the last row is returned
-        if dim - row >= num_rows:
-            C[row:, :] = ans
+        if dim - last_row <= num_rows:
+            print last_row
+            print "C:", C
+            print "ANS:", ANS
+            C[last_row:, :] = ANS[:dim-last_row, :]
+            row -= (dim - last_row)
         else:
-            C[row:num_rows] = ans
-        row -= num_rows
+            C[last_row:last_row+num_rows] = ANS
+            row -= num_rows
 
     print C
-    D = np.dot(A, B)   
+    D = np.dot(A, B)
     print "Is C == D?", np.array_equal(C, D)
 
 
 def slave(dim, dtype, proc_id, comm):
     """The slave process, computes the matrix product and returns results."""
-    subset = np.zeros([dim, dim], dtype=dtype)
+    num_rows = ceil(dim / (n_proc - 1))
+    subset = np.zeros([num_rows, dim], dtype=dtype)
     B = np.zeros([dim, dim], dtype=dtype)
 
     # Receive the second matrix
