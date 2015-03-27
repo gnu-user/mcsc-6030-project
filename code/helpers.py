@@ -38,26 +38,63 @@ def timing(f):
     return wrap
 
 
+# TODO: I hate this function there must be a cleaner way without determining dtype...
 # TODO: Add full support for types; support distribution types and sparse matrices
-def gen_matrix(dim, dtype, dist='uniform', sparse=1.00):
+def gen_matrix(m, n, dtype, dist='uniform', sparse=1.00, empty=False):
     """Generates a dynamic matrix given the parameters specified.
 
-    :param dim: The dimension of the square matrix
+    :param m: The rows of the matrix
+    :param n: The columns of the matrix
     :param dtype: The data type must be supported by numpy
     :param dist: The distribution must be one of zero, uniform, normal, weibull, poisson
     :param sparse: The sparsity of the matrix
     """
+    if empty:
+        if dtype == 'int32':
+            return np.zeros([m, n], dtype=np.int32)
+        elif dtype == 'bool':
+            return np.zeros([m, n], dtype=np.int8)
+        elif dtype == 'float':
+            return np.zeros([m, n], dtype=np.float)
     if dtype == 'int32':
-        return np.int32(np.random.random_integers(1, 100, (dim, dim)))
+        return np.int32(np.random.random_integers(1, 100, (m, n)))
     elif dtype == 'bool':
-        A = np.random.rand(dim, dim)
+        A = np.random.rand(m, n)
         A[A < 0.5] = 0
         A[A >= 0.5] = 1
-        A = A.astype('bool')
+        A = A.astype('B')
         return A
     elif dtype == 'float':
-        return np.random.rand(dim, dim)
+        return np.random.rand(m, n)
 
+
+# TODO: I hate this function, must be a cleaner way
+def gen_vector(m, dtype, dist='uniform', sparse=1.00, empty=False):
+    """Generates a dynamic vector given the parameters specified.
+
+    :param m: The rows of the matrix
+    :param n: The columns of the matrix
+    :param dtype: The data type must be supported by numpy
+    :param dist: The distribution must be one of zero, uniform, normal, weibull, poisson
+    :param sparse: The sparsity of the matrix
+    """
+    if empty:
+        if dtype == 'int32':
+            return np.zeros(m, dtype=np.int32)
+        elif dtype == 'bool':
+            return np.zeros(m, dtype=np.int8)
+        elif dtype == 'float':
+            return np.zeros(m, dtype=np.float)
+    if dtype == 'int32':
+        return np.int32(np.random.random_integers(1, 100, m))
+    elif dtype == 'bool':
+        A = np.random.rand(m)
+        A[A < 0.5] = 0
+        A[A >= 0.5] = 1
+        A = A.astype('B')
+        return A
+    elif dtype == 'float':
+        return np.random.rand(m)
 
 # The docopt string for command line usage of all benchmark programs
 usage = """Benchmarks

@@ -46,9 +46,9 @@ if __name__ == '__main__':
 
     # Generate the dynamic matrices for the test
     dim, dtype = args['DIM'], args['--dtype']
-    A = gen_matrix(dim, dtype)
-    B = gen_matrix(dim, dtype)
-    C = np.zeros([dim, dim], dtype=dtype)
+    A = gen_matrix(dim, dim, dtype)
+    B = gen_matrix(dim, dim, dtype)
+    C = gen_matrix(dim, dim, dtype, empty=True)
 
     # Calculate the execution time for the naive approach
     start = time()

@@ -25,7 +25,7 @@
 import numpy as np
 from mpi4py import MPI
 from docopt import docopt
-from helpers import gen_matrix, usage, schema
+from helpers import gen_matrix, gen_vector, usage, schema
 from schema import SchemaError
 
 # Define process 0 as MASTER
@@ -34,10 +34,10 @@ MASTER = 0
 
 def master(dim, dtype, n_proc, comm):
     """The master process, generates matrices and divides up the work."""
-    A = gen_matrix(dim, dtype)
-    B = gen_matrix(dim, dtype)
-    C = np.zeros([dim, dim], dtype=dtype)
-    ANS = np.zeros(dim, dtype=dtype)
+    A = gen_matrix(dim, dim, dtype)
+    B = gen_matrix(dim, dim, dtype)
+    C = gen_matrix(dim, dim, dtype, empty=True)
+    ANS = gen_vector(dim, dtype, empty=True)
     n_rows = dim  # TODO maybe support separate columns and rows
 
     # Start the runtime clock
@@ -67,15 +67,15 @@ def master(dim, dtype, n_proc, comm):
             comm.Send(A[n_sent, :], sender, tag=n_sent)
             n_sent += 1
         else:
-            comm.Send(np.zeros(dim, dtype=dtype), sender, tag=n_rows+1)
+            comm.Send(gen_vector(dim, dtype, empty=True), sender, tag=n_rows+1)
 
     print "%0.3f" % (MPI.Wtime() - t_start)
 
 
 def slave(dim, dtype, proc_id, comm):
     """The slave process, computes the matrix product and returns results."""
-    my_row = np.zeros(dim, dtype=dtype)
-    B = np.zeros([dim, dim], dtype=dtype)
+    my_row = gen_vector(dim, dtype, empty=True)
+    B = gen_matrix(dim, dim, dtype, empty=True)
     n_rows = dim  # TODO maybe support separate columns and rows
     # Receive the second matrix
     comm.Bcast(B, MASTER)
