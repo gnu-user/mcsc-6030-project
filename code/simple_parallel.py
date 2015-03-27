@@ -24,8 +24,6 @@
 ###############################################################################
 import numpy as np
 from mpi4py import MPI
-from math import ceil
-from time import time
 from docopt import docopt
 from helpers import gen_matrix, usage, schema
 from schema import SchemaError
@@ -41,6 +39,9 @@ def master(dim, dtype, n_proc, comm):
     C = np.zeros([dim, dim], dtype=dtype)
     ANS = np.zeros(dim, dtype=dtype)
     n_rows = dim  # TODO maybe support separate columns and rows
+
+    # Start the runtime clock
+    t_start = MPI.Wtime()
 
     # Broadcast the second matrix to all processes
     comm.Bcast(B, MASTER)
@@ -67,18 +68,14 @@ def master(dim, dtype, n_proc, comm):
             n_sent += 1
         else:
             comm.Send(np.zeros(dim, dtype=dtype), sender, tag=n_rows+1)
-    print "Finished!"
 
-    print C
-    D = np.dot(A, B)
-    print "Is C == D?", np.array_equal(C, D)
+    print "%0.3f" % (MPI.Wtime() - t_start)
 
 
 def slave(dim, dtype, proc_id, comm):
     """The slave process, computes the matrix product and returns results."""
     my_row = np.zeros(dim, dtype=dtype)
     B = np.zeros([dim, dim], dtype=dtype)
-    stop = np.empty(1, dtype=np.bool)
     n_rows = dim  # TODO maybe support separate columns and rows
     # Receive the second matrix
     comm.Bcast(B, MASTER)
@@ -115,10 +112,3 @@ if __name__ == '__main__':
         master(args['DIM'], args['--dtype'], n_proc, comm)
     else:
         slave(args['DIM'], args['--dtype'], n_proc, comm)
-    # Generate the dynamic matrices for the test
-
-    # Calculate the execution time for the baseline
-    #start = time()
-    #C = np.dot(A, B)
-    #end = time()
-    #print "%0.3f" % (end-start,)
