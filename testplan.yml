@@ -15,6 +15,12 @@ codes:
       description: Naive multiplicatin with O(n^3) complexity
       file: naive.py
       exec: python2
+    # Simple parallel implementation using MPI
+    - name: simple_parallel
+      description: Simple parallel implementation using MPI
+      file: simple_parallel.py
+      exec: mpiexec
+      args: ['-np', '4', 'python2']
 # The test data sets to execute the code against
 tests:
     - name: assorted_bool
