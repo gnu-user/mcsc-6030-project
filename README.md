@@ -35,13 +35,13 @@ Getting Started
     depenencies. Navigate to the **codes/** folder and then execute the setup
     script which the following command, this will install all needed dependencies. 
 
-    `sudo python2 setup.py develop`
+    `sudo python2 setup.py develop`  
 
 4.  After installing the dependencies you can execute the test framework using
     the following command, if you do not want verbosity remove the argument
     **--verbose**.
 
-    `python2 test_framework.py --code=benchmarks testplan.yml --verbose`
+    `python2 test_framework.py --code=benchmarks testplan.yml --verbose`  
 
 5.  If you would like to view the various matrix multiplication benchmarks
     you can see the implementations in the **benchmarks/** directory.
