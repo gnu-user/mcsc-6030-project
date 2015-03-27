@@ -39,40 +39,35 @@ def master(dim, dtype, n_proc, comm):
     A = gen_matrix(dim, dtype)
     B = gen_matrix(dim, dtype)
     C = np.zeros([dim, dim], dtype=dtype)
+    ANS = np.zeros(dim, dtype=dtype)
+    n_rows = dim  # TODO maybe support separate columns and rows
 
     # Broadcast the second matrix to all processes
     comm.Bcast(B, MASTER)
 
-    # Divide the rows of the matrix amongst the processes
-    row = 0
-    num_rows = ceil(dim / (n_proc - 1))
-    ANS = np.zeros([num_rows, dim], dtype=dtype)
-
-    for k in range(1, min(dim+1, n_proc)):
-        # Send the remainder to the last process
-        if k == n_proc - 1:
-            comm.Send(A[row::, :], k, tag=row)
-            row += (dim - row)
-        else:
-            comm.Send(A[row:num_rows, :], k, tag=row)
-            row += num_rows
+    # Send the first rows to other processes
+    n_sent = 0
+    for k in range(1, min(n_rows+1, n_proc)):
+        comm.Send(A[n_sent, :], k, tag=n_sent)
+        n_sent += 1
 
     # Loop and receive the dot product from the processes
-    while row > 0:
+    for k in range(n_rows):
         status = MPI.Status()
-        comm.Recv(ANS, source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, 
-                  status=status)
-        last_row = status.tag
-        # Handle when the last row is returned
-        if dim - last_row <= num_rows:
-            print last_row
-            print "C:", C
-            print "ANS:", ANS
-            C[last_row:, :] = ANS[:dim-last_row, :]
-            row -= (dim - last_row)
+        # Receive a computed vector product of that row
+        comm.Recv(ANS, source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
+        sender = status.source
+        row = status.tag
+        # Record the results
+        C[row, :] = ANS
+
+        # Either send another row to sender or a tag to signal completion
+        if n_sent < n_rows:
+            comm.Send(A[n_sent, :], sender, tag=n_sent)
+            n_sent += 1
         else:
-            C[last_row:last_row+num_rows] = ANS
-            row -= num_rows
+            comm.Send(np.zeros(dim, dtype=dtype), sender, tag=n_rows+1)
+    print "Finished!"
 
     print C
     D = np.dot(A, B)
@@ -81,19 +76,24 @@ def master(dim, dtype, n_proc, comm):
 
 def slave(dim, dtype, proc_id, comm):
     """The slave process, computes the matrix product and returns results."""
-    num_rows = ceil(dim / (n_proc - 1))
-    subset = np.zeros([num_rows, dim], dtype=dtype)
+    my_row = np.zeros(dim, dtype=dtype)
     B = np.zeros([dim, dim], dtype=dtype)
-
+    stop = np.empty(1, dtype=np.bool)
+    n_rows = dim  # TODO maybe support separate columns and rows
     # Receive the second matrix
     comm.Bcast(B, MASTER)
 
     # Receive the subset of the first matrix
     status = MPI.Status()
-    comm.Recv(subset, source=MASTER, tag=MPI.ANY_TAG, status=status)
+    comm.Recv(my_row, source=MASTER, tag=MPI.ANY_TAG, status=status)
+    row = status.tag
 
-    # Return the results, including the index of the row computed
-    comm.Send(np.dot(subset, B), MASTER, tag=status.tag)
+    while row < n_rows:
+        # Return the results, including the index of the row computed
+        comm.Send(np.dot(my_row, B), MASTER, tag=status.tag)
+        status = MPI.Status()
+        comm.Recv(my_row, source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
+        row = status.tag
 
 
 if __name__ == '__main__':
