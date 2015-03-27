@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 ###############################################################################
 #
 # Naive implementation of matrix multiplication to compare to the baseline

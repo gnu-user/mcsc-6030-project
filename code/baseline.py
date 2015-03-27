@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 ###############################################################################
 #
 # Set a baseline for all benchmarks using numpy's serial matrix multiplication
@@ -23,7 +24,7 @@
 import numpy as np
 from time import time
 from docopt import docopt
-from helpers import gen_matrix, timing, usage, schema
+from helpers import gen_matrix, usage, schema
 from schema import SchemaError
 
 if __name__ == '__main__':
