@@ -3,8 +3,8 @@ description: >
     An assortment of matrix multiplication tests with square matrices of
     dimensions: 100, 500, and 1000 with integers, booleans, and floats
     uniformly distributed.
-# The codes to execute for the tests 
-codes:
+# The benchmarks to execute for the tests 
+benchmarks:
     # The Baseline test to compare the other results to, done using numpy
     - name: baseline
       description: Baseline multiplication using NumPy

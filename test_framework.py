@@ -37,23 +37,23 @@ from tabulate import tabulate
 usage = """Test Framework
 
 Usage:
-  test_framework.py [-v | --verbose] --code=<dir> TESTPLAN
+  test_framework.py [-v | --verbose] --benchmarks=<dir> TESTPLAN
   test_framework.py -h | --help
 
-  Executes the test plan and evaluates the code in the directory.
+  Executes the test plan and evaluates the benchmark in the directory.
 
 Arguments:
-  TESTPLAN       The test plan YAML document.
+  TESTPLAN            The test plan YAML document.
 
 Options:
-  -h, --help     Show this screen and exit.
-  -v, --verbose  Increased verbosity, display more information.
-  ---code=<dir>  The directory containing the code to execute.
+  -h, --help          Show this screen and exit.
+  -v, --verbose       Increased verbosity, display more information.
+  --benchmarks=<dir>  The directory containing the benchmarks to execute.
 
 """
 
 schema = Schema({
-    '--code': And(path.exists, error='Code directory does not exist.'),
+    '--benchmarks': And(path.exists, error='benchmarks directory does not exist.'),
     'TESTPLAN': And(path.exists, error='Test plan does not exist.'),
     '--help': Or(None, Use(bool)),
     '--verbose': Or(None, Use(bool))
@@ -72,35 +72,35 @@ class PrettyPrint(object):
         self.col1 = self.cols - self._col2 if col1 is None else col1
         self.col2 = self._col2 if col2 is None else col2
 
-    def summary(self, test_plan):
+    def summary(self, testplan):
         """Print the summary of the test plan."""
         if self.verbose:
             puts(colored.cyan('Description:'))
             with indent(self._tab):
-                puts(columns([test_plan['description'], self.col1-self._tab]))
+                puts(columns([testplan['description'], self.col1-self._tab]))
 
-        puts(colored.cyan('Codes:'))
+        puts(colored.cyan('Benchmarks:'))
         if self.verbose:
             with indent(self._tab):
-                for code in test_plan['codes']:
-                    puts(colored.magenta(code['name']))
+                for benchmark in testplan['benchmarks']:
+                    puts(colored.magenta(benchmark['name']))
                     with indent(self._tab):
-                        puts(columns([code['description'] + '\n', self.col1-self._tab*2]))
+                        puts(columns([benchmark['description'] + '\n', self.col1-self._tab*2]))
         else:
             with indent(self._tab):
-                for code in test_plan['codes']:
-                    puts(code['name'])
+                for benchmark in testplan['benchmarks']:
+                    puts(benchmark['name'])
 
         puts(colored.cyan('Tests:'))
         if self.verbose:
             with indent(self._tab):
-                for test in test_plan['tests']:
+                for test in testplan['tests']:
                     puts(colored.magenta(test['name']))
                     with indent(self._tab):
                         puts(columns([test['description'], self.col1-self._tab*2]))
         else:
             with indent(self._tab):
-                for test in test_plan['tests']:
+                for test in testplan['tests']:
                     puts(test['name'])
             puts()
 
@@ -138,19 +138,22 @@ class PrettyPrint(object):
         """Prints a pretty table of the data, where each key is a column, and
            the value is an iterable for the rows of data.
         """
+        puts(colored.cyan('Runtime Results:'))
+        with indent(4):
+            puts('A table of the average runtime for each test and benchmark.\n')
         puts(tabulate(data, headers="keys", tablefmt="grid", floatfmt=".3f"))
 
 
 # TODO: Clean this up, should be part of a class
-def gen_summary(results, codes):
+def gen_summary(results, benchmarks):
     """Creates a dictionary summarizing the results of execution times."""
     summary = OrderedDict()
-    summary['codes'] = list(codes.keys())
+    summary['benchmarks'] = list(benchmarks.keys())
     for test, result in results.iteritems():
         summary[test] = []
-        for i, code in enumerate(result):
+        for i, benchmark in enumerate(result):
             summary[test].append(0)
-            for times in result[code].values():
+            for times in result[benchmark].values():
                 summary[test][i] += sum(times) / float(len(times))
     return summary
 
@@ -171,19 +174,19 @@ if __name__ == '__main__':
         print "Error parsing test plan!"
         exit(e)
 
-    # Store the codes and tests as ordered dictionaries
-    codes = OrderedDict()
+    # Store the benchmarks and tests as ordered dictionaries
+    benchmarks = OrderedDict()
     tests = OrderedDict()
-    for code in testplan['codes']:
-        if 'args' in code:
-            codes[code['name']] = {'description': code['description'],
-                                   'file': code['file'],
-                                   'exec': code['exec'],
-                                   'args': code['args']}
+    for benchmark in testplan['benchmarks']:
+        if 'args' in benchmark:
+            benchmarks[benchmark['name']] = {'description': benchmark['description'],
+                                             'file': benchmark['file'],
+                                             'exec': benchmark['exec'],
+                                             'args': benchmark['args']}
         else:
-            codes[code['name']] = {'description': code['description'],
-                                   'file': code['file'],
-                                   'exec': code['exec']}
+            benchmarks[benchmark['name']] = {'description': benchmark['description'],
+                                             'file': benchmark['file'],
+                                             'exec': benchmark['exec']}
     for test in testplan['tests']:
         tests[test['name']] = {'description': test['description'],
                                'dimensions': test['dimensions'],
@@ -195,33 +198,33 @@ if __name__ == '__main__':
 
     # Execute each test in the test plan and store the results
     results = OrderedDict()
-    for test in testplan['testplan']:
-        name, trials = test['test'], test['trials']
-        results[name] = OrderedDict()
-        pretty.heading(name)
-        pretty.test_summary(tests[name], trials)
+    for entry in testplan['testplan']:
+        test, trials = entry['test'], entry['trials']
+        results[test] = OrderedDict()
+        pretty.heading(test)
+        pretty.test_summary(tests[test], trials)
 
-        for dim in tests[name]['dimensions']:
+        for dim in tests[test]['dimensions']:
             puts(colored.cyan(str(dim) + ':'))
-            for code_name, code in codes.iteritems():
+            for name, benchmark in benchmarks.iteritems():
                 # The results for this test
-                results[name][code_name] = OrderedDict()
-                results[name][code_name][str(dim)] = []
+                results[test][name] = OrderedDict()
+                results[test][name][str(dim)] = []
 
-                for i in progress.bar(range(trials), label=pretty.progress(code_name), width=10):
+                for i in progress.bar(range(trials), label=pretty.progress(name), width=10):
                     # Execute the test, record the execution time
-                    if 'args' in code:
-                        pargs = [code['exec']] + code['args'] +\
-                                [path.join(args['--code'], code['file']),
-                                 '--dtype=' + tests[name]['type'], str(dim)]
+                    if 'args' in benchmark:
+                        pargs = [benchmark['exec']] + benchmark['args'] +\
+                                [path.join(args['--benchmarks'], benchmark['file']),
+                                 '--dtype=' + tests[test]['type'], str(dim)]
                     else:
-                        pargs = [code['exec'], path.join(args['--code'], code['file']),
-                                 '--dtype=' + tests[name]['type'], str(dim)]
+                        pargs = [benchmark['exec'], path.join(args['--benchmarks'], benchmark['file']),
+                                 '--dtype=' + tests[test]['type'], str(dim)]
                     p = Popen(pargs, stdout=PIPE)
                     output, err = p.communicate()
                     # Store the results of each trial
-                    results[name][code_name][str(dim)].append(float(output))
+                    results[test][name][str(dim)].append(float(output))
 
     # Display the descriptive statistics of the results
     pretty.title(testplan['name'], end='Runtime Summary')
-    pretty.table(gen_summary(results, codes))
+    pretty.table(gen_summary(results, benchmarks))
