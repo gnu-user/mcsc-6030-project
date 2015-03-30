@@ -22,10 +22,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import numpy as np
 from time import time
 from docopt import docopt
-from helpers import gen_matrix, timing, usage, schema
+from helpers import gen_matrix, usage, schema
 from schema import SchemaError
 
 
@@ -55,7 +54,3 @@ if __name__ == '__main__':
     naive(A, B, C)
     end = time()
     print "%0.3f" % (end-start,)
-
-    #D = np.dot(A, B)
-    # Compare the results
-    #print "Is C == D?", np.array_equal(C, D)
