@@ -7,7 +7,7 @@ FINAL = final_report
 BIBFILE = references.bib
 BUNDLE = all_reports.pdf
 
-all: $(PROPOSAL).pdf clean
+all: $(PROPOSAL).pdf $(PRELIMINARY).pdf clean
 
 view: $(BUNDLE)
 	open $(BUNDLE)
@@ -28,3 +28,11 @@ $(PROPOSAL).pdf: $(PROPOSAL).tex $(PROPOSAL).bbl
 $(PROPOSAL).bbl: $(PROPOSAL).tex $(BIBFILE)
 	$(TEX) $(PROPOSAL)
 	$(BIB) $(PROPOSAL)
+
+$(PRELIMINARY).pdf: $(PRELIMINARY).tex $(PRELIMINARY).bbl 
+	$(TEX) $(PRELIMINARY) 
+	$(TEX) $(PRELIMINARY)
+ 
+$(PRELIMINARY).bbl: $(PRELIMINARY).tex $(BIBFILE)
+	$(TEX) $(PRELIMINARY)
+	$(BIB) $(PRELIMINARY)
