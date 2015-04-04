@@ -108,6 +108,9 @@ if __name__ == '__main__':
     if n_proc < 2:
         print "Error: requires two or more processes to operate!"
 
+    # Ensure all processes have started before benchmarking
+    comm.Barrier()
+
     if proc_id == MASTER:
         master(args['DIM'], args['--dtype'], n_proc, comm)
     else:
