@@ -41,8 +41,8 @@ def uniform_approx(A, B, S, R):
         S[:, t] = A[i_t, :]
         R[t, :] = B[:, i_t]
         # Apply scaling
-        S[t, :] /= sqrt(c * p_all)
-        R[:, t] /= sqrt(c * p_all)
+        #S[t, :] /= sqrt(c * p_all)
+        #R[:, t] /= sqrt(c * p_all)
 
 
 if __name__ == '__main__':
@@ -87,5 +87,9 @@ if __name__ == '__main__':
     print "NORM C-C:", np.linalg.norm(C-C, ord='fro')
 
     # Calculate the bound
-    print "ERROR BOUND:", (1.0 / approx_dim) * np.linalg.norm(A, ord='fro') \
-          * np.linalg.norm(B, ord='fro')
+    error = (1.0 / approx_dim) * np.linalg.norm(A, ord='fro') \
+        * np.linalg.norm(B, ord='fro')
+    print "ERROR BOUND:", error
+
+    # Calculate the error %
+    print "ERROR %:", np.linalg.norm(T-C, ord='fro') / error * 100
