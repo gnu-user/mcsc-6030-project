@@ -22,7 +22,7 @@
 #
 ###############################################################################
 import numpy as np
-from math import ceil, sqrt
+from math import ceil
 from time import time
 from docopt import docopt
 from helpers import gen_matrix, usage, schema
@@ -34,15 +34,18 @@ def uniform_approx(A, B, S, R):
     # Pick rows from A and corresponding column from B uniformly random
     n = A.shape[1]
     c = S.shape[1]
-    p_all = 1.0 / n  # Since uniform all row/col have equal probability
+    print "C, N:", c, n
+    p_each = 1.0 / n  # Since uniform all row/col have equal probability
     for t in range(0, c):
         # Pick a random row and column independently with replacement
         i_t = np.random.randint(0, n)
         S[:, t] = A[i_t, :]
         R[t, :] = B[:, i_t]
         # Apply scaling
-        #S[t, :] /= sqrt(c * p_all)
-        #R[:, t] /= sqrt(c * p_all)
+        print S[:, t]
+        print np.sqrt(c * p_each)
+        S[:, t] /= np.sqrt(c * p_each)
+        R[t, :] /= np.sqrt(c * p_each)
 
 
 if __name__ == '__main__':
@@ -63,8 +66,8 @@ if __name__ == '__main__':
     # Make the approximate matrices C and R 75% of the size of A and B
     # TODO make this a test parameter
     approx_dim = int(ceil(dim * 0.75))
-    S = gen_matrix(dim, approx_dim, dtype)
-    R = gen_matrix(approx_dim, dim, dtype)
+    S = gen_matrix(dim, approx_dim, 'float', empty=True)
+    R = gen_matrix(approx_dim, dim, 'float', empty=True)
 
     # Calculate the uniform approximate matrix and compute the product
     # S*R as the sum of outer products
@@ -78,18 +81,18 @@ if __name__ == '__main__':
     F = np.dot(D, E)
     print T.shape, C.shape
 
-    print "T - C:", T - C
+    RES = T - C
+    print "T - C:", RES
     print "F - C:", F - C
     print "C - C:", C - C
 
-    print "NORM T-C:", np.linalg.norm(T-C, ord='fro')
-    print "NORM F-C:", np.linalg.norm(F-C, ord='fro')
-    print "NORM C-C:", np.linalg.norm(C-C, ord='fro')
+    print "NORM T-C:", np.linalg.norm(RES)
+    print "NORM F-C:", np.linalg.norm(F-C)
+    print "NORM C-C:", np.linalg.norm(C-C)
 
     # Calculate the bound
-    error = (1.0 / approx_dim) * np.linalg.norm(A, ord='fro') \
-        * np.linalg.norm(B, ord='fro')
+    error = (1.0 / approx_dim) * (np.linalg.norm(A) * np.linalg.norm(B))
     print "ERROR BOUND:", error
 
     # Calculate the error %
-    print "ERROR %:", np.linalg.norm(T-C, ord='fro') / error * 100
+    print "ERROR %:", (np.linalg.norm(RES) / error) * 100
