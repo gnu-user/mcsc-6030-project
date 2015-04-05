@@ -57,13 +57,14 @@ if __name__ == '__main__':
     A = gen_matrix(dim, dim, dtype)
     B = gen_matrix(dim, dim, dtype)
 
+    D = gen_matrix(dim, dim, dtype)
+    E = gen_matrix(dim, dim, dtype)
+
     # Make the approximate matrices C and R 75% of the size of A and B
     # TODO make this a test parameter
     approx_dim = int(ceil(dim * 0.75))
     S = gen_matrix(dim, approx_dim, dtype)
     R = gen_matrix(approx_dim, dim, dtype)
-
-    print S.shape, R.shape
 
     # Calculate the uniform approximate matrix and compute the product
     # S*R as the sum of outer products
@@ -72,3 +73,15 @@ if __name__ == '__main__':
     T = np.dot(S, R)
     end = time()
     print "%0.3f" % (end-start,)
+
+    C = np.dot(A, B)
+    F = np.dot(D, E)
+    print T.shape, C.shape
+
+    print "T - C:", T - C
+    print "F - C:", F - C
+    print "C - C:", C - C
+
+    print "NORM T-C:", np.linalg.norm(T-C, ord='fro')
+    print "NORM F-C:", np.linalg.norm(F-C, ord='fro')
+    print "NORM C-C:", np.linalg.norm(C-C, ord='fro')
