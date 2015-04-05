@@ -85,3 +85,7 @@ if __name__ == '__main__':
     print "NORM T-C:", np.linalg.norm(T-C, ord='fro')
     print "NORM F-C:", np.linalg.norm(F-C, ord='fro')
     print "NORM C-C:", np.linalg.norm(C-C, ord='fro')
+
+    # Calculate the bound
+    print "ERROR BOUND:", (1.0 / approx_dim) * np.linalg.norm(A, ord='fro') \
+          * np.linalg.norm(B, ord='fro')
