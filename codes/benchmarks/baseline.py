@@ -35,9 +35,9 @@ if __name__ == '__main__':
         exit(e)
 
     # Generate the dynamic matrices for the test
-    dim, dtype = args['DIM'], args['--dtype']
-    A = gen_matrix(dim, dim, dtype)
-    B = gen_matrix(dim, dim, dtype)
+    dim, dtype, mtype = args['DIM'], args['--dtype'], args['--mtype']
+    A = gen_matrix(dim, dim, dtype, mtype)
+    B = gen_matrix(dim, dim, dtype, mtype)
 
     # Calculate the execution time for the baseline
     start = time()

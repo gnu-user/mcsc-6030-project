@@ -121,7 +121,7 @@ def gen_vector(m, dtype, dist='uniform', sparse=1.00, empty=False):
 usage = """Benchmarks
 
 Usage:
-  benchmark.py --dtype=<type> [--dist=<name> --sparse=<val>] DIM
+  benchmark.py --dtype=<type> [--mtype=<type> --dist=<name> --sparse=<val>] DIM
   benchmark.py -h | --help
 
 Arguments:
@@ -130,6 +130,7 @@ Arguments:
 Options:
   -h, --help      Show this screen and exit.
   --dtype=<type>  Numpy data type e.g. float, int32, bool.
+  --mtype=<type>  Specific type of matrix, either adjacency or stochastic.
   --dist=<name>   Statistical distribution [default: uniform].
   --sparse=<val>  The sparsity of the matrix [default: 1.0].
 
@@ -140,6 +141,7 @@ Options:
 schema = Schema({
     'DIM': Use(int, error='Matrix dimension must be an integer.'),
     '--dtype': Use(str, error='--dtype=<type> must be a valid numpy data type.'),
+    '--mtype': Or(None, Use(str, error='--mtype=<type> must be a type of adjacency or stochastic.')),
     '--dist': Or(None, Use(str, error='--dist=<name> must be a valid distribution.')),
     '--sparse': Or(None, Use(float, error='--sparse=<val> must be a floating point value.')),
     '--help': Or(None, Use(bool))

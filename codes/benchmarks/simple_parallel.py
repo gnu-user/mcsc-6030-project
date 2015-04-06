@@ -32,10 +32,10 @@ from schema import SchemaError
 MASTER = 0
 
 
-def master(dim, dtype, n_proc, comm):
+def master(dim, dtype, mtype, n_proc, comm):
     """The master process, generates matrices and divides up the work."""
-    A = gen_matrix(dim, dim, dtype)
-    B = gen_matrix(dim, dim, dtype)
+    A = gen_matrix(dim, dim, dtype, mtype)
+    B = gen_matrix(dim, dim, dtype, mtype)
     C = gen_matrix(dim, dim, dtype, empty=True)
     ANS = gen_vector(dim, dtype, empty=True)
     n_rows = dim  # TODO maybe support separate columns and rows
@@ -112,6 +112,6 @@ if __name__ == '__main__':
     comm.Barrier()
 
     if proc_id == MASTER:
-        master(args['DIM'], args['--dtype'], n_proc, comm)
+        master(args['DIM'], args['--dtype'], args['--mtype'], n_proc, comm)
     else:
         slave(args['DIM'], args['--dtype'], n_proc, comm)
