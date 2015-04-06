@@ -38,14 +38,14 @@ def timing(f):
     return wrap
 
 
-# TODO: I hate this function there must be a cleaner way without determining dtype...
 # TODO: Add full support for types; support distribution types and sparse matrices
-def gen_matrix(m, n, dtype, dist='uniform', sparse=1.00, empty=False):
+def gen_matrix(m, n, dtype, mtype=None, dist='uniform', sparse=1.00, empty=False):
     """Generates a dynamic matrix given the parameters specified.
 
     :param m: The rows of the matrix
     :param n: The columns of the matrix
     :param dtype: The data type must be supported by numpy
+    :param mtype: The type of matrix: adjacency, stochastic, sparse
     :param dist: The distribution must be one of zero, uniform, normal, weibull, poisson
     :param sparse: The sparsity of the matrix
     """
@@ -56,6 +56,28 @@ def gen_matrix(m, n, dtype, dist='uniform', sparse=1.00, empty=False):
             return np.zeros([m, n], dtype=np.int8)
         elif dtype == 'float':
             return np.zeros([m, n], dtype=np.float)
+
+    if mtype == 'adjacency':
+        # Create an adjacency matrix representing a graph
+        A = np.int32(np.random.random_integers(1, 100, (m, n)))
+        A[A < 70] = 0  # 70% of vertexes are not completely connected
+        A[A >= 95] = 3  # 5% have 3
+        A[A >= 85] = 2  # 10% have 2 connections
+        A[A >= 70] = 1  # 15% of vertexes have 1 connection
+        return A
+    elif mtype == 'stochastic':
+        # Create a stochastic matrix representing a markov chain,
+        # where the sum of each col and row is 1
+        A = np.random.rand(m, n)
+        B = np.copy(A)
+        for i in range(0, m):
+            tot = np.sum(A[i, :])
+            A[i, :] /= tot
+        for j in range(0, n):
+            tot = np.sum(B[:, j])
+            B[:, j] /= tot
+        return np.dot(A, B)
+
     if dtype == 'int32':
         return np.int32(np.random.random_integers(1, 100, (m, n)))
     elif dtype == 'bool':
@@ -68,7 +90,6 @@ def gen_matrix(m, n, dtype, dist='uniform', sparse=1.00, empty=False):
         return np.random.rand(m, n)
 
 
-# TODO: I hate this function, must be a cleaner way
 def gen_vector(m, dtype, dist='uniform', sparse=1.00, empty=False):
     """Generates a dynamic vector given the parameters specified.
 
