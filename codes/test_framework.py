@@ -63,7 +63,7 @@ schema = Schema({
 class PrettyPrint(object):
     """Prints the text for the test framework to the screen prettily."""
     _col2 = 30  # Default width for second column
-    _tab = 3  # Number of space charaters for tab
+    _tab = 3  # Number of space characters for tab
 
     def __init__(self, verbose=False, col1=None, col2=None):
         """Initializes object, optionally can set widths of columns."""
@@ -178,19 +178,20 @@ if __name__ == '__main__':
     benchmarks = OrderedDict()
     tests = OrderedDict()
     for benchmark in testplan['benchmarks']:
+        benchmarks[benchmark['name']] = {'description': benchmark['description'],
+                                         'file': benchmark['file'],
+                                         'exec': benchmark['exec'],
+                                         'args': []}
         if 'args' in benchmark:
-            benchmarks[benchmark['name']] = {'description': benchmark['description'],
-                                             'file': benchmark['file'],
-                                             'exec': benchmark['exec'],
-                                             'args': benchmark['args']}
-        else:
-            benchmarks[benchmark['name']] = {'description': benchmark['description'],
-                                             'file': benchmark['file'],
-                                             'exec': benchmark['exec']}
+            benchmarks[benchmark['name']]['args'] = benchmark['args']
+
     for test in testplan['tests']:
         tests[test['name']] = {'description': test['description'],
                                'dimensions': test['dimensions'],
-                               'type': test['type']}
+                               'dtype': test['dtype'],
+                               'mtype': ''}
+        if 'mtype' in test:
+            tests[test['name']]['mtype'] = test['mtype']
 
     pretty = PrettyPrint(verbose=args['--verbose'])
     pretty.title(testplan['name'])
@@ -213,13 +214,11 @@ if __name__ == '__main__':
 
                 for i in progress.bar(range(trials), label=pretty.progress(name), width=10):
                     # Execute the test, record the execution time
-                    if 'args' in benchmark:
-                        pargs = [benchmark['exec']] + benchmark['args'] +\
-                                [path.join(args['--benchmarks'], benchmark['file']),
-                                 '--dtype=' + tests[test]['type'], str(dim)]
-                    else:
-                        pargs = [benchmark['exec'], path.join(args['--benchmarks'], benchmark['file']),
-                                 '--dtype=' + tests[test]['type'], str(dim)]
+                    pargs = [benchmark['exec']] + benchmark['args'] +\
+                            [path.join(args['--benchmarks'], benchmark['file']),
+                             '--dtype=' + tests[test]['dtype'],
+                             '--mtype=' + tests[test]['mtype'], str(dim)]
+
                     p = Popen(pargs, stdout=PIPE)
                     output, err = p.communicate()
                     # Store the results of each trial
