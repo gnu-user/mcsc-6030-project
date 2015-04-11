@@ -25,7 +25,7 @@
 import yaml
 from math import floor
 from collections import OrderedDict
-import sys
+from pprint import pprint
 from os import path, popen
 from subprocess import Popen, PIPE
 from docopt import docopt
@@ -140,22 +140,56 @@ class PrettyPrint(object):
         """
         puts(colored.cyan('Runtime Results:'))
         with indent(4):
-            puts('A table of the average runtime for each test and benchmark.\n')
+            puts('A table of the average execution for each benchmark, dimensions, and test.\n')
         puts(tabulate(data, headers="keys", tablefmt="grid", floatfmt=".3f"))
 
 
-# TODO: Clean this up, should be part of a class
-def gen_summary(results, benchmarks):
-    """Creates a dictionary summarizing the results of execution times."""
-    summary = OrderedDict()
-    summary['benchmarks'] = list(benchmarks.keys())
-    for test, result in results.iteritems():
-        summary[test] = []
-        for i, benchmark in enumerate(result):
-            summary[test].append(0)
-            for times in result[benchmark].values():
-                summary[test][i] += sum(times) / float(len(times))
-    return summary
+class Timing(object):
+    """A class that acts as a container to simplify storing benchmark timings."""
+
+    def __init__(self):
+        self.benchmarks = []
+        self.tests = []
+        self.dims = []
+        self.results = OrderedDict()
+        self.summary = OrderedDict()
+
+    def add(self, benchmark, test, dim, time):
+        """Adds the execution time of a test for the benchmark and dimensions to list."""
+        dim = str(dim)
+        if benchmark not in self.benchmarks:
+            self.benchmarks.append(benchmark)
+        if test not in self.tests:
+            self.tests.append(test)
+        if dim not in self.dims:
+            self.dims.append(dim)
+
+        if dim not in self.results:
+            self.results[dim] = OrderedDict()
+        if benchmark not in self.results[dim]:
+            self.results[dim][benchmark] = OrderedDict()
+        if test not in self.results[dim][benchmark]:
+            self.results[dim][benchmark][test] = []
+
+        # Add the results for the trials
+        self.results[dim][benchmark][test].append(time)
+
+    def gen_summary(self):
+        """Creates a dictionary summarizing the results of execution times."""
+        self.summary['benchmarks'] = []
+        self.summary['dims'] = []
+        for test in tests:
+            self.summary[test] = []
+
+        # Add the average time for each benchmark, for each dimension, for each test
+        for dim in self.results:
+            for benchmark in self.results[dim]:
+                self.summary['benchmarks'].append(benchmark)
+                self.summary['dims'].append(dim)
+                for test, times in self.results[dim][benchmark].iteritems():
+                    self.summary[test].append(sum(times) / float(len(times)))
+
+        return self.summary
 
 
 if __name__ == '__main__':
@@ -198,32 +232,26 @@ if __name__ == '__main__':
     pretty.summary(testplan)
 
     # Execute each test in the test plan and store the results
-    results = OrderedDict()
+    timings = Timing()
     for entry in testplan['testplan']:
         test, trials = entry['test'], entry['trials']
-        results[test] = OrderedDict()
         pretty.heading(test)
         pretty.test_summary(tests[test], trials)
 
         for dim in tests[test]['dimensions']:
             puts(colored.cyan(str(dim) + ':'))
             for name, benchmark in benchmarks.iteritems():
-                # The results for this test
-                results[test][name] = OrderedDict()
-                results[test][name][str(dim)] = []
-
                 for i in progress.bar(range(trials), label=pretty.progress(name), width=10):
                     # Execute the test, record the execution time
                     pargs = [benchmark['exec']] + benchmark['args'] +\
                             [path.join(args['--benchmarks'], benchmark['file']),
                              '--dtype=' + tests[test]['dtype'],
                              '--mtype=' + tests[test]['mtype'], str(dim)]
-
                     p = Popen(pargs, stdout=PIPE)
                     output, err = p.communicate()
                     # Store the results of each trial
-                    results[test][name][str(dim)].append(float(output))
+                    timings.add(name, test, dim, float(output))
 
     # Display the descriptive statistics of the results
     pretty.title(testplan['name'], end='Runtime Summary')
-    pretty.table(gen_summary(results, benchmarks))
+    pretty.table(timings.gen_summary())
