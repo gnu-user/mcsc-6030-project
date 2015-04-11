@@ -23,9 +23,9 @@
 #
 ###############################################################################
 import yaml
+import csv
 from math import floor
 from collections import OrderedDict
-from pprint import pprint
 from os import path, popen
 from subprocess import Popen, PIPE
 from docopt import docopt
@@ -37,7 +37,7 @@ from tabulate import tabulate
 usage = """Test Framework
 
 Usage:
-  test_framework.py [-v | --verbose] --benchmarks=<dir> TESTPLAN
+  test_framework.py [-v | --verbose --save=<file>] --benchmarks=<dir> TESTPLAN
   test_framework.py -h | --help
 
   Executes the test plan and evaluates the benchmark in the directory.
@@ -48,15 +48,16 @@ Arguments:
 Options:
   -h, --help          Show this screen and exit.
   -v, --verbose       Increased verbosity, display more information.
+  --save=<file>       The file to save the benchmark results to as a CSV.
   --benchmarks=<dir>  The directory containing the benchmarks to execute.
-
 """
 
 schema = Schema({
     '--benchmarks': And(path.exists, error='benchmarks directory does not exist.'),
     'TESTPLAN': And(path.exists, error='Test plan does not exist.'),
     '--help': Or(None, Use(bool)),
-    '--verbose': Or(None, Use(bool))
+    '--verbose': Or(None, Use(bool)),
+    '--save': Or(None, Use(str))
 })
 
 
@@ -191,6 +192,15 @@ class Timing(object):
 
         return self.summary
 
+    def save_summary(self, file):
+        """Saves the summary of the benchmark results to a CSV file."""
+        with open(file, 'wb') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=self.summary.keys())
+            writer.writeheader()
+            for i in range(0, len(self.summary['dims'])):
+                row = {col: self.summary[col][i] for col in self.summary.keys()}
+                writer.writerow(row)
+
 
 if __name__ == '__main__':
     args = docopt(usage)
@@ -255,3 +265,5 @@ if __name__ == '__main__':
     # Display the descriptive statistics of the results
     pretty.title(testplan['name'], end='Runtime Summary')
     pretty.table(timings.gen_summary())
+    if args['--save']:
+        timings.save_summary(args['--save'])
