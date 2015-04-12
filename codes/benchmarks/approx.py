@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 ###############################################################################
 #
-# Performs approximate matrix multiplication using a uniform distribution.
+# Performs approximate matrix multiplication based on the work of Drineas
+# and Kannan.
 #
 # Copyright (C) 2015, Jonathan Gillett
 # All rights reserved.
@@ -81,9 +82,9 @@ if __name__ == '__main__':
     except SchemaError as e:
         exit(e)
 
-    # Generate the dynamic matrices for the test
     dim, dtype, mtype, approx = args['DIM'], args['--dtype'], args['--mtype'], args['--approx']
 
+    # Generate the dynamic matrices for the test
     A = gen_matrix(dim, dim, dtype, mtype)
     B = gen_matrix(dim, dim, dtype, mtype)
 
