@@ -24,7 +24,7 @@
 ###############################################################################
 import time
 import numpy as np
-from schema import Schema, Or, Use
+from schema import Schema, And, Or, Use
 
 
 def timing(f):
@@ -121,18 +121,19 @@ def gen_vector(m, dtype, dist='uniform', sparse=1.00, empty=False):
 usage = """Benchmarks
 
 Usage:
-  benchmark.py --dtype=<type> [--mtype=<type> --dist=<name> --sparse=<val>] DIM
+  benchmark.py --dtype=<type> [--mtype=<type> --dist=<name> --sparse=<val> --approx=<type>] DIM
   benchmark.py -h | --help
 
 Arguments:
   DIM             The dimension of the square matrix
 
 Options:
-  -h, --help      Show this screen and exit.
-  --dtype=<type>  Numpy data type e.g. float, int32, bool.
-  --mtype=<type>  Specific type of matrix, either adjacency or stochastic.
-  --dist=<name>   Statistical distribution [default: uniform].
-  --sparse=<val>  The sparsity of the matrix [default: 1.0].
+  -h, --help       Show this screen and exit.
+  --dtype=<type>   Numpy data type e.g. float, int32, bool.
+  --mtype=<type>   Specific type of matrix, either adjacency or stochastic.
+  --dist=<name>    Statistical distribution [default: uniform].
+  --sparse=<val>   The sparsity of the matrix [default: 1.0].
+  --approx=<type>  Type of approximate multiplication, uniform or non-uniform [default: uniform].
 
 """
 
@@ -144,5 +145,7 @@ schema = Schema({
     '--mtype': Or(None, Use(str, error='--mtype=<type> must be a type of adjacency or stochastic.')),
     '--dist': Or(None, Use(str, error='--dist=<name> must be a valid distribution.')),
     '--sparse': Or(None, Use(float, error='--sparse=<val> must be a floating point value.')),
+    '--approx': Or(None, And(Use(str), lambda x: x in ['uniform', 'non-uniform'],
+                   error='--approx=<type> must be uniform or non-uniform.')),
     '--help': Or(None, Use(bool))
 })
