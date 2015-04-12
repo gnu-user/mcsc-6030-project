@@ -21,6 +21,11 @@ benchmarks:
       file: simple_parallel.py
       exec: mpiexec
       args: ['-np', '4', 'python2']
+    # Approximate matrix multiplication method
+    - name: approx
+      description: Approximate multiplication implementation.
+      file: approx.py
+      exec: python2
 # The test data sets to execute the code against
 tests:
     - name: assorted_bool
@@ -52,11 +57,11 @@ tests:
     - name: stochastic
       description: >
           Matrix multiplication tests with a stochastic matrix representing 
-          a markov chain where the sum of each row and column is 1. With 
+          a markov chain where the sum of each row and column is 1 with 
           dimensions 100, 500, 1000.
       dimensions: [25, 50, 75]
       dtype: float
-      mtype: stock
+      mtype: stochastic
 # The test plan, for each test which code to execute
 testplan:
     - test: assorted_bool
