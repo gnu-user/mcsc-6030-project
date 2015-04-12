@@ -82,9 +82,10 @@ if __name__ == '__main__':
         exit(e)
 
     # Generate the dynamic matrices for the test
-    dim, dtype = args['DIM'], args['--dtype']
-    A = gen_matrix(dim, dim, dtype)
-    B = gen_matrix(dim, dim, dtype)
+    dim, dtype, mtype, approx = args['DIM'], args['--dtype'], args['--mtype'], args['--approx']
+
+    A = gen_matrix(dim, dim, dtype, mtype)
+    B = gen_matrix(dim, dim, dtype, mtype)
 
     # Make the approximate matrices S and R 75% of the size of A and B
     # TODO make this a test parameter
@@ -95,7 +96,10 @@ if __name__ == '__main__':
     # Calculate the uniform approximate matrix and compute the product
     # S*R as the sum of outer products
     start = time()
-    uniform_approx(A, B, S, R)
+    if approx == 'uniform':
+        uniform_approx(A, B, S, R)
+    elif approx == 'non-uniform':
+        non_uniform_approx(A, B, S, R)
     T = np.dot(S, R)
     end = time()
     print "%0.3f" % (end-start,)
