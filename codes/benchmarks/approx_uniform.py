@@ -22,6 +22,7 @@
 #
 ###############################################################################
 import numpy as np
+from scipy.stats import rv_discrete
 from math import ceil
 from time import time
 from docopt import docopt
@@ -43,6 +44,34 @@ def uniform_approx(A, B, S, R):
         # Apply scaling
         S[:, t] /= np.sqrt(s * p_each)
         R[t, :] /= np.sqrt(s * p_each)
+
+
+def non_uniform_approx(A, B, S, R):
+    """Creates non-uniformly approximate matrices of A and B, C and R."""
+    # Pick rows from A and corresponding column from B uniformly random
+    n = A.shape[1]
+    s = S.shape[1]
+    rows = np.arange(0, n)  # The list of rows
+    probs = np.zeros(n)  # The probability of each column
+
+    # Calculate the probability of selecting each column based on the amount of
+    # information using the method proposed by Drineas and Kannan. The probability
+    # is based on the product of the row and column euclidean norms divided by
+    # the cumulative sum of the product of euclidean norms for all rows and columns
+    D = 0.0
+    for i in range(0, n):
+        prod = np.sqrt((A[i, :]*A[i, :]).sum()) * np.sqrt((B[:, i]*B[:, i]).sum())
+        D += prod
+        probs[i] = prod / D
+
+    # Use the probabilities to pick the rows and columns non-uniformly
+    distrib = rv_discrete(values=(rows, probs))
+    for t, i_t in enumerate(distrib.rvs(size=s)):
+        S[:, t] = A[i_t, :]
+        R[t, :] = B[:, i_t]
+        # Apply scaling
+        S[:, t] /= np.sqrt(s * probs[i_t])
+        R[t, :] /= np.sqrt(s * probs[i_t])
 
 
 if __name__ == '__main__':
