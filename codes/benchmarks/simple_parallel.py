@@ -100,6 +100,8 @@ if __name__ == '__main__':
     except SchemaError as e:
         exit(e)
 
+    dim, dtype, mtype = args['DIM'], args['--dtype'], args['--mtype']
+
     # Initialize MPI environment
     comm = MPI.COMM_WORLD
     n_proc = comm.Get_size()
@@ -112,6 +114,6 @@ if __name__ == '__main__':
     comm.Barrier()
 
     if proc_id == MASTER:
-        master(args['DIM'], args['--dtype'], args['--mtype'], n_proc, comm)
+        master(dim, dtype, mtype, n_proc, comm)
     else:
-        slave(args['DIM'], args['--dtype'], n_proc, comm)
+        slave(dim, dtype, proc_id, comm)
