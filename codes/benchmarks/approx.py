@@ -42,9 +42,11 @@ def uniform_approx(A, B, S, R):
         i_t = np.random.randint(0, n)
         S[:, t] = A[i_t, :]
         R[t, :] = B[:, i_t]
-        # Apply scaling
-        S[:, t] /= np.sqrt(s * p_each)
-        R[t, :] /= np.sqrt(s * p_each)
+
+    # Apply uniform scaling
+    scaling = np.sqrt(s * p_each)
+    S /= scaling
+    R /= scaling
 
 
 def non_uniform_approx(A, B, S, R):
@@ -71,8 +73,9 @@ def non_uniform_approx(A, B, S, R):
         S[:, t] = A[i_t, :]
         R[t, :] = B[:, i_t]
         # Apply scaling
-        S[:, t] /= np.sqrt(s * probs[i_t])
-        R[t, :] /= np.sqrt(s * probs[i_t])
+        scaling = np.sqrt(s * probs[i_t])
+        S[:, t] /= scaling
+        R[t, :] /= scaling
 
 
 if __name__ == '__main__':
@@ -89,7 +92,6 @@ if __name__ == '__main__':
     B = gen_matrix(dim, dim, dtype, mtype)
 
     # Make the approximate matrices S and R 75% of the size of A and B
-    # TODO make this a test parameter
     approx_dim = int(ceil(dim * 0.75))
     S = gen_matrix(dim, approx_dim, 'float', empty=True)
     R = gen_matrix(approx_dim, dim, 'float', empty=True)
