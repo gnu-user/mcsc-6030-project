@@ -49,7 +49,7 @@ The significance of this research caught the attention of Twitter and Facebook, 
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=\textwidth]{twitter-dimsum}
+\includegraphics[width=\textwidth]{figures/twitter-dimsum}
 \caption{DIMSUM, used in production at Twitter since June 2014, has resulted in an observed 40\% performance improvement\cite{zadeh2013dimension}}
 \label{fig:transaction}
 \end{figure}
@@ -160,14 +160,14 @@ The creation of the test framework greatly simplifies the process of executing t
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=\textwidth]{framework-progress}
+\includegraphics[width=\textwidth]{figures/framework-progress}
 \caption{Test framework displaying test progress}
 \label{fig:progress}
 \end{figure}
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=\textwidth]{framework-summary}
+\includegraphics[width=\textwidth]{figures/framework-summary}
 \caption{Test framework displaying summary statistics}
 \label{fig:summary}
 \end{figure}
@@ -190,6 +190,163 @@ The following is the list of expected outcomes, which as been refined from the i
 \item A final report discussing the approximate and parallel implementations, their practical applications to large adjacency and stochastic matrices, in addition to a thorough analysis of the performance results in comparison to the baseline implementation.
 
 \end{enumerate}
+
+
+
+
+\section{Reflections}
+
+%- State clearly how you fared in your project with respect to the goals that you set out to achieve. 
+%- In particular, note those original goals that you did achieve and explain their significance.
+
+All of the main goals specified in the \emph{solution methodology} and the expected outcomes of the preliminary progress report were met with a few minor exceptions. In particular, a suitable set of matrices were defined in order to ensure that the benchmarking would be accurate, including matrices representing graphs and stochastic processes; refinement of the test framework to support evaluating approximate matrix multiplication; an approximate matrix multiplication implementation based on the paper, \emph{Fast Monte-Carlo Algorithms for Approximate Matrix Multiplication}\cite{drineas2001fast}, by Drineas and Kannan; and lastly a set of consistent benchmarking results to discuss the performance results of the various implementations.
+
+While all of the main goals and expected outcomes were met there were a few minor exceptions, the first being the lack of a parallel implementation based on Cannon's algorithm. This was due to the limited performance benefit, as Cannon's algorithm merely reduces the bandwidth overhead\cite{lee1997generalized} and limited remaining time as a result of challenges implementing the approximate matrix implementation as discussed in the following section. The second exception being the lack of a consistent methodology to evaluate the accuracy of the approximate matrix multiplication results, while the algorithms were implemented as accurately as possible based on literature, the error bounds calculations could not be implemented in a way that was reliable for testing.
+
+
+
+
+\subsection{Challenges \& Successes}
+
+% - Also, make note of those goals that may not have turned out the way you had originally anticipated.
+% - Document any inconsistencies you may have found in the other literature that you have read while compiling your report
+% - Give reasons for this based on your experiences from working on your project.
+
+While the intended goal of writing an implementation in Python based on the approximate matrix multiplication concept published by Drineas and Kannan was met there were numerous issues in understanding how to correctly implement the algorithm. The paper by Drineas and Kannan focused on the proofs for the error bounds and reducing the error bounds using non-uniform probabilities there was little information on how to properly implement the discussed algorithms with scarce information on how the probabilities are determined, and how to perform the scaling. Furthermore, for practical purposes it appears that the error bounds only decrease once the matrix is extremely large, such as was demonstrated by Drineas and Kannan\cite{drineas2001fast}.
+
+Exasperating the problem of properly implementing the approximate matrix multiplication algorithm were inconsistent notation and explanations from other papers. After numerous issues implementing the approximate matrix multiplication algorithm there was a breakthrough after discovering a set of lecture slides written by Michael Mahoney, the third author on the SIAM publication \emph{Fast Monte Carlo algorithms for matrices I: Approximating matrix multiplication}\cite{drineas2006fastI}. Between the two sets of lecture slides\cite{mahoneyCS369M, mahoneyCS294}, Mahoney provided the algorithms used to perform the calculation of the non-uniform probabilities in addition to the approximate matrix scaling and multiplication\footnote{These lecture slides were part of a course \emph{Algorithms for Massive Data Set Analysis} taught by Mahoney at Stanford.}
+
+
+\begin{algorithm}[!ht]
+  \SetKwProg{Fn}{}{}{end}
+  \SetKwFunction{Approx}{Approx}
+  \SetKwArray{Forwards}{forwards}
+  \SetKwFunction{ZeroMatrix}{zeroMatrix}
+  \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+  \SetAlgoNoLine
+  \DontPrintSemicolon
+  \Fn{\Approx{$A, B$}}{
+  \Input{$A \epsilon R^{m \times{} n}, B \epsilon R^{n \times{} p}, C \epsilon Z^{+}$ s.t. $1 \leq c \leq n$ and $(p_i)_{i=1}^n$ are s.t. $p_i \geq 0$ and $\sum_{i=1}^{n} p_i = 1}
+  \Output{$C, R$}
+  \BlankLine
+  
+  \For{$t \leftarrow 1$ \KwTo $c$}
+  {
+    Pick $i_{t} \epsilon 1,...,n$ with $Pr[i_{t} = k] = p_{k}, k = 1,...,n$ independently
+    
+    Set $C^{(t)} = A^{(i_t)} / \sqrt{cp_{i_t}}$
+    
+    Set $R_{(t)} = B_{(i_t)} / \sqrt{cp_{i_t}}$
+  }
+  \BlankLine
+  \KwRet($C, R$)
+}
+\caption{Approximate Matrix Multiplication}
+\label{alg:approx}
+\end{algorithm}
+
+
+3. Include the actual algorithm (basically rewritten from paper and lecture slides by mahoney) and mention the difficulty in finding an actual explanation of the implementation
+
+    --> Also include the algorithm for naive matrix mult like in mahoney
+        lecture slides
+
+    --> include that sum of outer products summation
+
+
+2. Include the theorem 1 and lemmas which provide a proof for the bounds of error, remark how could not validate this in the implementation
+
+    --> All this math will fill up pages and is basically just copying it from the papers
+
+
+4. Mention how paper focused on proofs for error bounds and comp. complexity (GIVE THE COMPLEXITY, CITE FROM PAPER) rather than the
+actual implementation.
+
+
+
+
+
+
+
+\section{Final Results}
+
+- discuss test framework from previous sections
+
+- discuss how the testplan was updated to include new tests using more realistic data with adjacency matrix, which represents the vertexes and edges of a graph, and stochastic matrices which represent a stochastical
+system such as those represented by a markov chain CITE(APP. PAPER)
+
+- discuss the number of trials performed for each test to ensure accurate results
+- the test platform used (lenovo i7 thinkpad) due to limitations/issues with SHARCNET environment, all processes were terminated in order to limit any external influence on performance results
+
+
+
+5. Include a table with the results of the "numerous" trials executed for each of the sizes tested
+
+    --> Mention that for smaller tests the results of approx. random selection method is not as good (CITE big-O complexity) due to the difficulty in vectorizing the operations using a mask as it does random selection WITH replacement and order of selected columns also is important
+
+
+6. Include 2 plots of different tests
+
+- Discuss how results show that the performance is better for larger dimensions for the approximate implementation in comparison to even the parallel due to the reduction of any networking overhead, and
+the reduction in size of matrix for copmutation due of $O(N^{3})$ and how small reductions in size can have
+a large performance impact for large matrices
+
+- CIte how true results could be better realized with extremely large matrices, cite how the work of drineas and kannan involves matrices over 10,000 x 10,000 in size and the matrices used for the operations performed by twitter's approx. solution uses matrices containing terabytes of data
+
+- Parallelization of approx. matrix multiplicatoin is difficult due to the inherently sequential nature of the pass used to calculate the statisitcs for the non-uniform sampling, as mention in paper by drin and kan. after the appropriate rows and corresponding columns have been selected to perform the multiplication any underlying
+matrix mult. implementation can be used, including those that make use of parallelization
+
+
+
+\begin{table}[ht!]
+\centering
+\caption{Benchmark Execution Time Results}
+{\renewcommand{\arraystretch}{1.15}}
+\begin{tabular}{|l|c|l|l|l|l|l|} \hline
+benchmarks&        dims&       bool&        int&       float&    adjacency&    stochastic\\ \hline
+baseline&             25&      0.000&       0.000&     0.000&    0.000&     0.000\\ \hline
+simple\_parallel&     25&      0.003&       0.002&     0.003&    0.002&     0.002\\ \hline
+approx&               25&      0.000&       0.000&     0.000&    0.000&     0.000\\ \hline
+baseline&             50&      0.000&       0.000&     0.000&    0.000&     0.000\\ \hline
+simple\_parallel&     50&      0.004&       0.004&     0.004&    0.004&     0.003\\ \hline
+approx&               50&      0.000&       0.000&     0.001&    0.001&     0.000\\ \hline
+baseline&            100&      0.001&       0.001&     0.001&    0.001&     0.001\\ \hline
+simple\_parallel&    100&      0.006&       0.008&     0.007&    0.005&     0.004\\ \hline
+approx&              100&      0.002&       0.002&     0.002&    0.002&     0.002\\ \hline
+baseline&            500&      0.142&       0.193&     0.289&    0.187&     0.250\\ \hline
+simple\_parallel&    500&      0.161&       0.252&     0.498&    0.218&     0.459\\ \hline
+approx&              500&      0.152&       0.175&     0.179&    0.143&     0.147\\ \hline
+baseline&           1000&      1.539&       2.827&     2.611&    2.607&     2.342\\ \hline
+simple\_parallel&   1000&      1.385&       3.143&     2.332&    2.373&     1.764\\ \hline
+approx&             1000&      1.908&       3.276&     1.843&    1.773&     1.778\\ \hline
+\end{tabular}
+\label{table:benchmark}
+\end{table}
+
+
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\textwidth]{figures/assorted_float}
+\caption{Assorted Float Test Execution Time}
+\label{fig:assorted_float}
+\end{figure}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\textwidth]{figures/stochastic}
+\caption{Stochastic Test Execution Time}
+\label{fig:stochastic}
+\end{figure}
+
+
+
+\section{Concluding Remarks}
+
+
+x. Conclude with the remark on how the work of drineas and kannan has been expanded by Twitter and Facebook (CITE their papers) and how there are numerous applications of approx. matrix multiplication especially
+in use for machine learning
+
 
 
 \bibliographystyle{plain}
