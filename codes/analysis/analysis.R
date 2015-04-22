@@ -26,7 +26,7 @@ library(psych)
 library(ggplot2)
 library(RColorBrewer)
 
-figure_dir <- "./plots/"
+figure_dir <- "/mnt/home/jon/University/GRAD 1B/MCSC 6030G/Project/mcsc-6030-project/codes/analysis/"
 
 
 # Parse the results
@@ -45,7 +45,7 @@ p <- p + geom_line(size=1.5) +
 
 file <- "assorted_bool.png"
 file <- paste(figure_dir, file, sep="/")
-ggsave(filename=file, plot=p, width=12, height=6)
+ggsave(filename=file, plot=p, width=9, height=5)
 
 
 
@@ -60,7 +60,7 @@ p <- p + geom_line(size=1.5) +
 
 file <- "assorted_int.png"
 file <- paste(figure_dir, file, sep="/")
-ggsave(filename=file, plot=p, width=12, height=6)
+ggsave(filename=file, plot=p, width=9, height=5)
 
 
 
@@ -75,7 +75,7 @@ p <- p + geom_line(size=1.5) +
 
 file <- "assorted_float.png"
 file <- paste(figure_dir, file, sep="/")
-ggsave(filename=file, plot=p, width=12, height=6)
+ggsave(filename=file, plot=p, width=9, height=5)
 
 
 
@@ -90,7 +90,7 @@ p <- p + geom_line(size=1.5) +
 
 file <- "adjacency.png"
 file <- paste(figure_dir, file, sep="/")
-ggsave(filename=file, plot=p, width=12, height=6)
+ggsave(filename=file, plot=p, width=9, height=5)
 
 
 
@@ -105,4 +105,4 @@ p <- p + geom_line(size=1.5) +
 
 file <- "stochastic.png"
 file <- paste(figure_dir, file, sep="/")
-ggsave(filename=file, plot=p, width=12, height=6)
+ggsave(filename=file, plot=p, width=9, height=5)
