@@ -38,7 +38,6 @@ def timing(f):
     return wrap
 
 
-# TODO: Add full support for types; support distribution types and sparse matrices
 def gen_matrix(m, n, dtype, mtype=None, dist='uniform', sparse=1.00, empty=False):
     """Generates a dynamic matrix given the parameters specified.
 
@@ -138,7 +137,6 @@ Options:
 """
 
 # The schema for validating the command line arguments
-# TODO: Add better validation for numpy type provided, stat. distribution, sparsity
 schema = Schema({
     'DIM': Use(int, error='Matrix dimension must be an integer.'),
     '--dtype': Use(str, error='--dtype=<type> must be a valid numpy data type.'),

@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name='Enhancement of Matrix Multiplication',
-    version="0.0.1",
+    version="1.0",
     description='''
     Research project to evaluate strategies for the enhancement of matrix
     multiplcation using parallelization and evolutionary strategies.

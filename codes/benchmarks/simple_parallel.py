@@ -38,7 +38,7 @@ def master(dim, dtype, mtype, n_proc, comm):
     B = gen_matrix(dim, dim, dtype, mtype)
     C = gen_matrix(dim, dim, dtype, empty=True)
     ANS = gen_vector(dim, dtype, empty=True)
-    n_rows = dim  # TODO maybe support separate columns and rows
+    n_rows = dim
 
     # Start the runtime clock
     t_start = MPI.Wtime()
@@ -76,7 +76,7 @@ def slave(dim, dtype, proc_id, comm):
     """The slave process, computes the matrix product and returns results."""
     my_row = gen_vector(dim, dtype, empty=True)
     B = gen_matrix(dim, dim, dtype, empty=True)
-    n_rows = dim  # TODO maybe support separate columns and rows
+    n_rows = dim
     # Receive the second matrix
     comm.Bcast(B, MASTER)
 
