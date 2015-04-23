@@ -20,7 +20,7 @@
 \section{Abstract}
 
 \doublespacing
-Matrix multiplication is among one of the most widely used and extensively studied operations in computing\cite{raz2002complexity}. The complexity of the naive implementation is $O(N^{3})$\cite{raz2002complexity}, with the theoretical lower bound of this computation shown to be $\Omega(N^{2})$\cite{raz2002complexity}. Despite the difference between the upper and lower bounds, the naive implementation remains the most widely used due to the optimization of cache hits\cite{note2002reducing}; much research has been invested in finding more optimal methods of performing this operation.
+Matrix multiplication is among one of the most widely used and extensively studied operations in computing\cite{raz2002complexity}. The complexity of the naive implementation is $O(N^{3})$\cite{raz2002complexity}, with the theoretical lower bound shown to be $\Omega(N^{2})$\cite{raz2002complexity}. Despite the difference between the upper and lower bounds, the naive implementation remains the most widely used due to the optimization of cache hits\cite{note2002reducing}; much research has been invested in finding more optimal methods of performing this operation.
 
 Advances in optimizing matrix multiplication, such as the Strassen and Coppersmith–Winograd algorithms\cite{huss1996implementation, coppersmith1987matrix} have focused on limiting the number of expensive multiplication operations performed in order to reduce the computational complexity. Despite the theoretical lower complexity of these algorithms, the performance benefits are often negated by the practical limitations of the implementations for real-world datasets and extremely large constants\cite{robinson2005toward}.
 
@@ -30,21 +30,21 @@ Given the recent trend towards approximate parallel computation for matrix multi
 
 For the preliminary results we have implemented a test framework in order to consistently test and validate the different implementations. Currently there are three benchmark implementations that have been created: a naive solution demonstrating the poor performance of iteration in Python; a baseline solution, which uses the \emph{np.dot} function provided by the NumPy library; and finally, a simple parallel implementation using MPI, where the rows are divided amongst N processors.
 
-The desired outcome for the final report is that additional parallel implementations will be created, and an approximate implementation based directly on the work of Drineas and Kannan\cite{drineas2001fast}. The challenge in implementing the approximate solution is to comprehend the theorems and lemmas and to understand their methodology, such that it can be translated into Python and the results reproduced. Lastly, the final goal for the research, time permitting, would be to incorporate parallelism and evolutionary strategies into the approximate implementation.
+The desired outcome for the final report is that additional parallel implementations will be created, and an approximate implementation based directly on the work of Drineas and Kannan\cite{drineas2001fast}. The challenge in implementing the approximate solution is to comprehend the theorems and lemmas and to understand their methodology, such that it can be translated into Python and the results reproduced. Time permitting, the final goal for the research would be to incorporate parallelism and evolutionary strategies into the approximate implementation.
 
 
 
 \section{Introduction}
 
-Matrix multiplication is fundamental to computing, and is an operation widely studied and used in numerical analysis with many real-world applications. The naive implementation has a complexity of $O(N^{3})$\cite{raz2002complexity} with a theoretical lower bound shown to be $\Omega(N^{2})$\cite{raz2002complexity}. For very large matrices this difference can have a major impact in the amount of time required for computations.
+Matrix multiplication is fundamental to computing, for it is an operation widely studied and used in numerical analysis with many real-world applications. The naive implementation has a complexity of $O(N^{3})$\cite{raz2002complexity} with a theoretical lower bound shown to be $\Omega(N^{2})$\cite{raz2002complexity}. For very large matrices this difference can have a major impact in the amount of time required for computations.
 
 However, even though the complexity of the naive implementation is significantly higher than the lower bound, it is still widely used due to highly optimized implementations written in Fortran, that make use of optimal cache hits\cite{note2002reducing}. The performance of the naive algorithm and other linear algebraic operations is so critical that software such as LAPACK (Linear Algebra PACKage)\cite{lapackweb} and ATLAS (Automatically Tuned Linear Algebra Software)\cite{whaley2001automated} have been created to provide optimal implementations of these operations. LAPACK provides many common operations for linear algebra such as matrix multiplication, and has been invaluable to the progress of both academia and industry. Furthermore, LAPACK is also fundamental to the success of MATLAB\cite{matlab2000}, which is one of the most widely used software applications in science and engineering.
 
 In addition to optimizing the implementations of the naive method of matrix multiplication, there have been many recent advances in optimizing the theoretical complexity of matrix multiplication starting with the Strassen and Coppersmith–Winograd algorithms\cite{huss1996implementation, coppersmith1987matrix}. These algorithms have focused on limiting the number of expensive multiplication operations performed in order to reduce the computational complexity. In Strassen's algorithm the number of multiplication operations required is reduced, giving a slightly lower complexity of $O(N^{2.8074})$\cite{huss1996implementation}. In the case of the Coppersmith–Winograd algorithm, which is similar to Strassen's, the complexity is $O(N^{2.374})$\cite{stothers2010complexity}. Nevertheless, despite the theoretical lower complexity of these algorithms, their use of recursion negatively impacts cache access, and the theoretical performance benefits are negated by the more optimal naive implementations, which make use of optimal cache hits\cite{note2002reducing}. In particular, the large constants of the Coppersmith-Winograd algorithm make it only feasible for extremely large matrices, beyond the storage and memory capabilities of present day hardware\cite{robinson2005toward}.
 
-As a result of the practical limitations of the theoretically optimal matrix multiplication algorithms, research and industry have been swift to focus on optimizations of matrix multiplication that sacrifice exact for approximate solutions and make use of highly parallel algorithms. The work by Drineas and Kannan in their seminal paper, \emph{Fast Monte-Carlo Algorithms for Approximate Matrix Multiplication}\cite{drineas2001fast}, and their subsequent three part publication in SIAM\cite{drineas2006fastI, drineas2006fastII, drineas2006fastIII}, laid the groundwork for much of the modern-day approaches to performing approximate linear algebraic operations. Building on the body of research conducted with Drineas and Kannan, Mahoney continued to pursue further applications of approximate stochastic algorithms to algebraic operations. In 2011 Mahoney published a detailed review paper on the subject, \emph{Randomized Algorithms for Matrices and Data}\cite{mahoney2011randomized}, which became highly influential to industry with it's numerous practical applications to machine learning.
+As a result of the practical limitations of the theoretically optimal matrix multiplication algorithms, research and industry have been swift to focus on optimizations of matrix multiplication that sacrifice exact for approximate solutions and make use of highly parallel algorithms. The work by Drineas and Kannan in their seminal paper, \emph{Fast Monte-Carlo Algorithms for Approximate Matrix Multiplication}\cite{drineas2001fast}, and their subsequent three part publication in SIAM\cite{drineas2006fastI, drineas2006fastII, drineas2006fastIII}, laid the groundwork for much of the modern-day approaches to performing approximate linear algebraic operations. Building on the body of research conducted with Drineas and Kannan, Mahoney continued to pursue further applications of approximate stochastic algorithms to algebraic operations. In 2011 Mahoney published a detailed review paper on the subject, \emph{Randomized Algorithms for Matrices and Data}\cite{mahoney2011randomized}, which became highly influential to industry with its numerous practical applications to machine learning.
 
-The significance of this research caught the attention of Twitter and Facebook, which are data driven organizations that rely on linear algebraic operations for machine learning and data analysis. Twitter created an approximate matrix multiplication operation known as DIMSUM. DIMSUM was used to perform parallel approximate matrix multiplication with MapReduce on matrices hundreds of terabytes in size, and resulted in significant performance improvements\cite{zadeh2013dimension}.
+The significance of this research caught both Twitter's and Facebook's attention, which are data driven organizations that rely on linear algebraic operations for machine learning and data analysis. Twitter created an approximate matrix multiplication operation known as DIMSUM. DIMSUM was used to perform parallel approximate matrix multiplication with MapReduce on matrices hundreds of terabytes in size, and resulted in significant performance improvements\cite{zadeh2013dimension}.
 
 
 \begin{figure}[ht!]
@@ -55,9 +55,9 @@ The significance of this research caught the attention of Twitter and Facebook, 
 \end{figure}
 
 
-Given the importance of optimizing matrix multiplication and the recent emphasis on utilizing approximate stochastic methods and parallelism. Studying these topics is an interesting problem that is relevant to the course given the emphasis on numerical precision and parallelism in High Performance Computing (HPC). Therefore, the purpose of this project will be to focus on the common serial implementations of matrix multiplication and to study the performance benefits of parallel and approximate implementations. Matrix multiplication is a very well defined problem, where the results can be easily verified and benchmarked using the tools and techniques demonstrated in class with Python, Numpy, and MPI\cite{van2011numpy}.
+Given the importance of optimizing matrix multiplication and the recent emphasis on utilizing approximate stochastic methods and parallelism. Studying these topics is an interesting problem that is relevant to the course, given the emphasis on numerical precision and parallelism in High Performance Computing (HPC). Therefore, the purpose of this project will be to focus on the common serial implementations of matrix multiplication and to study the performance benefits of parallel and approximate implementations. Matrix multiplication is a very well defined problem, where the results can be easily verified and benchmarked using the tools and techniques demonstrated in class with Python, Numpy, and MPI\cite{van2011numpy}.
 
-The greatest challenge will be implementing the approximate solutions, which involves reading through papers by Drineas, Kannan, and Mahoney in order to comprehend the theorems and lemmas and to understand their methodology and into Python. Following this, the next challenge will be to implement parallel algorithms for matrix multiplication, for example Cannon's algorithm. Considering that Python is inherently a single process/single threaded language due to the Global Interpreter Lock (GIL)\cite{beazley2010understanding}, parallelism will be implemented using MPI, following the techniques and examples demonstrated in lectures.
+The greatest challenge will involve implementing the approximate solutions, which necessitates reading through papers by Drineas, Kannan, and Mahoney in order to comprehend the theorems and lemmas and to understand their methodology and into Python. Following this, the next challenge will be to implement parallel algorithms for matrix multiplication, for example Cannon's algorithm. Considering that Python is inherently a single process/single threaded language due to the Global Interpreter Lock (GIL)\cite{beazley2010understanding}, parallelism will be implemented using MPI, following the techniques and examples demonstrated in lectures.
 
 
 
@@ -113,7 +113,7 @@ The following is the revised solution methodology, based on the initial project 
 
 \item The results for the approximate algorithms will be compared to the exact results of the \emph{np.dot} operation using the norm of the error matrix, which results from the subtraction of the approximate matrix, $P$, from the exact result, $P - A \cdot B$\cite{drineas2001fast}. Furthermore, for the test matrices representing stochastic models, the steady-state eigenvalues will also be compared and recorded during the benchmarking.
 
-\item A Python test framework will be created that will execute all of the tests and record the execution times and the result of multiplication calculations. This will be used to automate the benchmarking process and consistently and accurately benchmark the parallel and approximate implementations and evaluate the results.
+\item A Python test framework will be created to execute all of the tests and record the execution times of multiplication calculations. This will be used to automate the benchmarking process and  accurately benchmark the parallel and approximate implementations and evaluate the results.
 
 \item The serial baseline benchmark will be implemented using the \emph{np.dot} operation and tested using the framework as a base reference to compare against each of the approximate and parallel implementations.
 
@@ -123,7 +123,7 @@ The following is the revised solution methodology, based on the initial project 
 
 \item Time permitting, evolutionary strategies such as genetic algorithms and differential evolution, which are often used in optimization\cite{de1989using}, will be used to optimize parameters for the approximate algorithms.
 
-\item All implementations will be compared against each other and the reference baseline using the framework and the performance results and the margin of error, for approximate implementations, will be recorded.
+\item All of the matrix multiplication implementations will be benchmarked and compared to the baseline using the framework. The framework will execute each implementation against each set of tests with multiple trials and record the results.
 \end{enumerate}
 
 
@@ -133,7 +133,7 @@ The following is the revised solution methodology, based on the initial project 
 
 The preliminary results so far have been the creation of several implementations that can be used to compare the performance of matrix multiplication, including the baseline implementation, a slower naive implementation demonstrating the poor performance of iteration in Python, and lastly a simple parallel implementation using MPI.
 
-In addition to creating several implementations, a test framework has also been created to automate the process of benchmarking implementations and comparing the results. The test framework parses a test plan document, which is written using YAML, that describes each of the benchmark codes, the tests, the matrices used for the tests, and the order in which tests are executed. The following snippet shows the versatility of the test plan YAML document that is parsed by the test framework.
+In addition to creating several implementations, a test framework has also been created to automate the process of benchmarking implementations and comparing the results. The test framework parses a test plan document, which is written using YAML\footnote{YAML stands for YAML Ain't Markup Language, a human readable data serialization format based loosely on Python's syntax.}, that describes each of the benchmark codes, the tests, the matrices used for the tests, and the order in which tests are executed. The following snippet shows the versatility of the test plan YAML document that is parsed by the test framework.
 
 
 \singlespacing
@@ -196,24 +196,18 @@ The following is the list of expected outcomes, which as been refined from the i
 
 \section{Reflections}
 
-%- State clearly how you fared in your project with respect to the goals that you set out to achieve. 
-%- In particular, note those original goals that you did achieve and explain their significance.
-
 All of the main goals specified in the \emph{solution methodology} and the expected outcomes of the preliminary progress report were met with a few minor exceptions. In particular, a suitable set of matrices were defined in order to ensure that the benchmarking would be accurate, including matrices representing graphs and stochastic processes; refinement of the test framework to support evaluating approximate matrix multiplication; an approximate matrix multiplication implementation based on the paper, \emph{Fast Monte-Carlo Algorithms for Approximate Matrix Multiplication}\cite{drineas2001fast}, by Drineas and Kannan; and lastly a set of consistent benchmarking results to discuss the performance results of the various implementations.
 
-While all of the main goals and expected outcomes were met there were a few minor exceptions, the first being the lack of a parallel implementation based on Cannon's algorithm. This was due to the limited performance benefit, as Cannon's algorithm merely reduces the bandwidth overhead\cite{lee1997generalized} and limited remaining time as a result of challenges implementing the approximate matrix implementation as discussed in the following section. The second exception being the lack of a consistent methodology to evaluate the accuracy of the approximate matrix multiplication results, while the algorithms were implemented as accurately as possible based on literature, the error bounds calculations could not be implemented in a way that was reliable for testing.
+While all of the main goals and expected outcomes were met there were a few minor exceptions, the first being the lack of a parallel implementation based on Cannon's algorithm. This was due to the limited performance benefit, as Cannon's algorithm merely reduces the bandwidth overhead\cite{lee1997generalized} and limited remaining time as a result of challenges implementing the approximate matrix implementation as discussed in the following section. The second exception was the lack of a consistent methodology to evaluate the accuracy of the approximate matrix multiplication results. While the algorithms were implemented as accurately as possible based on literature, the error bounds calculations could not be implemented in a way that was reliable for testing.
+
 
 
 
 \subsection{Challenges \& Successes}
 
-% - Also, make note of those goals that may not have turned out the way you had originally anticipated.
-% - Document any inconsistencies you may have found in the other literature that you have read while compiling your report
-% - Give reasons for this based on your experiences from working on your project.
+There were numerous issues while attempting to implement in Python the approximate matrix multiplication method based on the paper published by Drineas and Kannan. While the paper by Drineas and Kannan focused on the proofs for the error bounds and reduced the error bounds using non-uniform probabilities, there was little information on how to properly implement the discussed algorithms. More so, with scarce information on how the non-uniform probabilities for selecting the rows and columns are determined, and how to perform the approximate matrix scaling. Furthermore, in the final implementation in Python, the error bounds were never utilized as the results for all experiments were extremely noisy. For practical purposes, it appears that the error bounds only decrease once the matrix is extremely large, as was demonstrated by Drineas and Kannan\cite{drineas2001fast}.
 
-While the intended goal of writing an implementation in Python based on the approximate matrix multiplication concept published by Drineas and Kannan was met there were numerous issues in understanding how to correctly implement the algorithm. The paper by Drineas and Kannan focused on the proofs for the error bounds and reducing the error bounds using non-uniform probabilities there was little information on how to properly implement the discussed algorithms with scarce information on how the probabilities are determined, and how to perform the scaling. Furthermore, for practical purposes it appears that the error bounds only decrease once the matrix is extremely large, such as was demonstrated by Drineas and Kannan\cite{drineas2001fast}.
-
-Exasperating the problem of properly implementing the approximate matrix multiplication algorithm were inconsistent notation and explanations from other papers. After numerous issues implementing the approximate matrix multiplication algorithm there was a breakthrough after discovering a set of lecture slides written by Michael Mahoney, the third author on the SIAM publication \emph{Fast Monte Carlo algorithms for matrices I: Approximating matrix multiplication}\cite{drineas2006fastI}. Between the two sets of lecture slides\cite{mahoneyCS369M, mahoneyCS294}, Mahoney provided the algorithms used to perform the calculation of the non-uniform probabilities in addition to the approximate matrix scaling and multiplication\footnote{These lecture slides were part of a course \emph{Algorithms for Massive Data Set Analysis} taught by Mahoney at Stanford.}
+Exacerbating the problem of properly implementing the approximate matrix multiplication algorithm were inconsistent notation and explanations from other papers. After numerous issues implementing the approximate matrix multiplication algorithm, there was a breakthrough after discovering a set of lecture slides written by Michael Mahoney, the third author on the SIAM publication \emph{Fast Monte Carlo algorithms for matrices I: Approximating matrix multiplication}\cite{drineas2006fastI}. Between the two sets of lecture slides\cite{mahoneyCS369M, mahoneyCS294}, Mahoney provided the algorithms used to perform the calculation of the non-uniform probabilities in addition to the approximate matrix scaling and multiplication\footnote{These lecture slides were part of a course \emph{Algorithms for Massive Data Set Analysis} taught by Mahoney at Stanford.}
 
 
 \begin{algorithm}[!ht]
@@ -244,10 +238,7 @@ Exasperating the problem of properly implementing the approximate matrix multipl
 \label{alg:approx}
 \end{algorithm}
 
-Algorithm \ref{alg:approx} demonstrates the approximate matrix multiplication method defined by Mahoney in the set of lecture slides for the courses taught at Stanford\cite{mahoneyCS369M, mahoneyCS294}. With the algorithm provided it was possible to implement the approximate matrix multiplication algorithm in Python, a major hurdle in accomplishing all of the desired goals. Understanding the approximate matrix multiplication method proved to be the greatest challenge of the project and required an incredibly detailed literature review of all of the authors of the original papers and their subsequent publications. Even so, it was not until a set of lecture slides for an undergraduate course taught by Mahoney at Stanford was discovered before the algorithm was completely understood. 
-
-
-
+Algorithm \ref{alg:approx} demonstrates the approximate matrix multiplication method defined by Mahoney in the set of lecture slides for the courses taught at Stanford\cite{mahoneyCS369M, mahoneyCS294}. The algorithm provided by Mahoney in the lecture slides made it possible to implement the approximate matrix multiplication algorithm in Python, a major hurdle in accomplishing all of the desired goals. Understanding the approximate matrix multiplication method proved to be the greatest challenge of the project and required an incredibly detailed literature review of all of the authors of the original papers and their subsequent publications. Even so, it was not until a set of lecture slides for an undergraduate course taught by Mahoney at Stanford was discovered before the algorithm was completely understood. 
 
 
 
@@ -258,32 +249,7 @@ The test framework was expanded to add support for executing the approximate mat
 
 In order to ensure as accurate results as possible for the experiments the test environment was controlled as much as possible to limit external sources of error. The test platform used was a Lenovo i7 Thinkpad, with four cores (with hyper-threading) at 2.8 GHz, due to limitations and inconsistencies using SHARCNET. All processes were terminated in order to limit any external influence on performance results and the benchmark environment was executed on 10 separate instances, each execution with 10 trials performed for each benchmark tested, to ensure accurate results and a large statistical sample.
 
-- discuss test framework from previous sections
-
-- discuss how the testplan was updated to include new tests using more realistic data with adjacency matrix, which represents the vertexes and edges of a graph, and stochastic matrices which represent a stochastical
-system such as those represented by a markov chain CITE(APP. PAPER)
-
-- discuss the number of trials performed for each test to ensure accurate results
-- the test platform used (lenovo i7 thinkpad) due to limitations/issues with SHARCNET environment, all processes were terminated in order to limit any external influence on performance results
-
-
-
-5. Include a table with the results of the "numerous" trials executed for each of the sizes tested
-
-    --> Mention that for smaller tests the results of approx. random selection method is not as good (CITE big-O complexity) due to the difficulty in vectorizing the operations using a mask as it does random selection WITH replacement and order of selected columns also is important
-
-
-6. Include 2 plots of different tests
-
-- Discuss how results show that the performance is better for larger dimensions for the approximate implementation in comparison to even the parallel due to the reduction of any networking overhead, and
-the reduction in size of matrix for copmutation due of $O(N^{3})$ and how small reductions in size can have
-a large performance impact for large matrices
-
-- CIte how true results could be better realized with extremely large matrices, cite how the work of drineas and kannan involves matrices over 10,000 x 10,000 in size and the matrices used for the operations performed by twitter's approx. solution uses matrices containing terabytes of data
-
-- Parallelization of approx. matrix multiplicatoin is difficult due to the inherently sequential nature of the pass used to calculate the statisitcs for the non-uniform sampling, as mention in paper by drin and kan. after the appropriate rows and corresponding columns have been selected to perform the multiplication any underlying
-matrix mult. implementation can be used, including those that make use of parallelization
-
+Table \ref{table:benchmark} contains the average execution times of the experiments, the \emph{Benchmarks} column contains the benchmark code with \emph{baseline} the NumPy \emph{np.dot} operation, \emph{simple\_parallel} the parallel multiplication using MPI, and \emph{approx} the approximate multiplication based on the work of Drineas and Kannan. The \emph{Dims} column is the $N \times N$ dimension of the matrices used for the tests, and the remaining columns are the average execution times for each of the test matrices.
 
 
 \begin{table}[ht!]
@@ -291,7 +257,7 @@ matrix mult. implementation can be used, including those that make use of parall
 \caption{Benchmark Execution Time Results}
 {\renewcommand{\arraystretch}{1.15}}
 \begin{tabular}{|l|c|l|l|l|l|l|} \hline
-benchmarks&        dims&       bool&        int&       float&    adjacency&    stochastic\\ \hline
+\textbf{Benchmarks}&        \textbf{Dims}&       \textbf{Bool}&        \textbf{Int}&       \textbf{Float}&    \textbf{Adjacency}&    \textbf{Stochastic}\\ \hline
 baseline&             25&      0.000&       0.000&     0.000&    0.000&     0.000\\ \hline
 simple\_parallel&     25&      0.003&       0.002&     0.003&    0.002&     0.002\\ \hline
 approx&               25&      0.000&       0.000&     0.000&    0.000&     0.000\\ \hline
@@ -312,6 +278,11 @@ approx&             1000&      1.908&       3.276&     1.843&    1.773&     1.77
 \end{table}
 
 
+As shown in table \ref{table:benchmark} for smaller dimensions the \emph{baseline} has a lower execution time compared to the other implementations. The parallel implementation, \emph{simple\_parallel}, has a worse performance than the \emph{baseline} due to the overhead of partitioning each of the rows and distributing them to the processes using MPI. For the approximate implementation, \emph{approx}, the overhead is due to the random selection method required to generate the approximate matrix. The approximate method requires $O(n)$ time for the probability generation and $O(c(m + p))$ time and space for the sampling and scaling\cite{drineas2001fast, mahoneyCS369M, mahoneyCS294}. The performance overhead of the approximate implementation was further exacerbated due to the recurrence required for the probability generation, making it impossible to make parallel, and the need for iteration, instead of more optimal NumPy vector operations, to perform the sampling and scaling. 
+
+
+The figures \ref{fig:assorted_float} and \ref{fig:stochastic} demonstrate the performance benefits of the approximate method when utilized for higher dimensional matrices. The approximate method, which was serial, out-performed even the parallel implementation, which utilized all four available cores on the test platform. The results corroborate with that of Drineas and Kannan's experiments, and show that for higher dimensional matrices the performance is better due to the reduction in the dimensions of the matrix for computation\cite{drineas2001fast}. The performance improvements from the reduction in the dimensions of the original matrix by using an approximate matrix becomes increasingly evident for larger matrices due to the growth of complexity of $O(N^{3})$, for extremely large matrices even small reductions in the dimensions can have a significant performance impact.
+
 
 \begin{figure}[ht!]
 \centering
@@ -328,15 +299,26 @@ approx&             1000&      1.908&       3.276&     1.843&    1.773&     1.77
 \end{figure}
 
 
+While the results shown in figures \ref{fig:assorted_float} and \ref{fig:stochastic} demonstrate the performance benefits of the approximate method, the results could have been better realized with very high dimensional matrices. For their experiments, Drineas and Kannan used a document matrix of dimension $5,000 \times 5,000$\cite{drineas2001fast}. Furthermore, for Big Data analysis, such as at Twitter and Facebook, the matrices used for the operations performed by Twitter's approximate method contain terabytes of data\cite{zadeh2013dimension}.
+
+Although parallelization of the approximate method is difficult due to the inherently sequential nature of the pass used to calculate the probabilities for non-uniform sampling. The strength of the approximate method is that after the approximate matrices are generated any desired method for matrix multiplication can be used, including methods, such as Cannon's algorithm, that utilize parallelization. 
+
+
+
 
 \section{Concluding Remarks}
 
+The project met all of the expected outcomes proposed in the preliminary progress report with a few minor exceptions due to the numerous challenges in implementing the approximate methods. The greatest challenge of the project was implementing the approximate methods based on the body of literature available. While the papers by Drineas, Kannan, and Mahoney provided proofs for the complexity and bounds of the approximate method\cite{drineas2001fast, drineas2006fastI, mahoney2011randomized}, there was very little literature specifically describing the actual algorithms and implementation details of the approximate methods. It was not until after an extremely thorough literature review was conducted for each of the authors that a set of lectures by Mahoney explaining the algorithm for the approximate method\cite{mahoneyCS369M, mahoneyCS294} was found.
 
-x. Conclude with the remark on how the work of drineas and kannan has been expanded by Twitter and Facebook (CITE their papers) and how there are numerous applications of approx. matrix multiplication especially
-in use for machine learning
+Only after discovering the lectures by Mahoney describing the approximate methods and algorithms in detail was it finally possible to implement the solution in Python. The approximate methods, which are serial, demonstrated far better performance than even the parallel implementation, which utilized all four cores on the test system. While the results for the approximate method demonstrate significant performance benefits with lower computation time for larger matrices, this however comes at the cost of imprecise results. To address the issue of imprecise results from the approximate methods, Drineas and Kannan provided proofs to determine the error bounds of the approximate methods\cite{drineas2001fast}. As well, they also provided techniques for improving the bounds of the error matrix, and improving the performance of the sampling and scaling. Nevertheless, it is important to note that the even with the performance benefits of the approximate method, it will always result in imprecise results.
+
+The imprecision of the approximate methods proposed by Drineas and Kannan is a limiting factor for certain applications, but has recently seen widespread adoption for applications in Big Data, where timely computations, rather than exact results are more valuable\cite{mahoney2011randomized, zadeh2013dimension}. The work of Drineas, Kannan, and Mahoney has been invaluable to the growth in the industry of Big Data as evident by its usage amongst data driven companies such as Twitter and Facebook, where approximate methods have found numerous applications in machine learning and data analysis.
+
+It is evident with the very recent creation of DIMSUM by Twitter, based directly on the work of Drineas, Kannan, and Mahoney, that the applications of their foundational work in approximate matrix multiplication have widespread appeal. The performance benefits as a result of the approximate methods at a loss of accuracy has many applications for one of the most fundamental operations in computing.
 
 
 
+\newpage
 \bibliographystyle{plain}
 \singlespacing
 \bibliography{references}
