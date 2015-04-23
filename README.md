@@ -18,6 +18,35 @@ multiplications generated using evolutionary strategies and evaluated within a
 tolerance of error.
 
 
+Repository Layout
+----------------------------------------
+
+The following is a summary of the various source codes in the repository.
+
+codes/
+  - This contains the main code for the project, the soure files 
+    setup.py and test_framework.py contain the code for installing the
+    dependencies and executing the test framework to evaluate the benchmark
+    impementations against the tests.
+  - The testplans are YAML documents that end in .yml and contain the 
+    descriptions of the test plans to execute, which describes how the
+    benchmark codes are evaluated.
+
+benchmarks/
+  - This contains each of the matrix multiplication benchmark implementations
+    these include the naive, baseline, parallel, and approximate implementations.
+  - The helpers.py source file contains many useful helper functions which are
+    common to each of the benchmark implemetations.
+
+analysis/
+  - This contains the R code that was used to analyze all of the test results
+    and generate the tables and plots used for the final report.
+
+reports/
+  - Each of the reports for the project including the final report, use the provided
+    Makefile to generate the PDF reports from the LaTeX source files.
+
+
 Getting Started
 ----------------------------------------
 
@@ -40,9 +69,12 @@ Getting Started
 
 4.  After installing the dependencies you can execute the test framework using
     the following command, if you want verbosity you can add the argument
-    **--verbose**.
+    **--verbose**. As well, if you would like to save the results to a CSV file
+    the argument **--save=<file>** can be used. Lastly, it is recommended that 
+    you execute the simple test plan which requires much less time to complete
+    than the complete test plan.
 
-    `python2 test_framework.py --benchmarks=benchmarks testplan.yml`  
+    `python2 test_framework.py --benchmarks=benchmarks simpleplan.yml`  
   
 
 5.  If you would like to view the various matrix multiplication benchmarks
