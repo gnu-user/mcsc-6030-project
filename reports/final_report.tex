@@ -205,7 +205,6 @@ While all of the main goals and expected outcomes were met there were a few mino
 
 
 
-
 \subsection{Challenges \& Successes}
 
 % - Also, make note of those goals that may not have turned out the way you had originally anticipated.
@@ -226,7 +225,7 @@ Exasperating the problem of properly implementing the approximate matrix multipl
   \SetAlgoNoLine
   \DontPrintSemicolon
   \Fn{\Approx{$A, B$}}{
-  \Input{$A \epsilon R^{m \times{} n}, B \epsilon R^{n \times{} p}, C \epsilon Z^{+}$ s.t. $1 \leq c \leq n$ and $(p_i)_{i=1}^n$ are s.t. $p_i \geq 0$ and $\sum_{i=1}^{n} p_i = 1}
+  \Input{$A \epsilon R^{m \times{} n}, B \epsilon R^{n \times{} p}, C \epsilon Z^{+}$ s.t. $1 \leq c \leq n$ and $(p_i)_{i=1}^n$ are s.t. $p_i \geq 0$ and $\sum_{i=1}^{n} p_i = 1$}
   \Output{$C, R$}
   \BlankLine
   
@@ -245,22 +244,7 @@ Exasperating the problem of properly implementing the approximate matrix multipl
 \label{alg:approx}
 \end{algorithm}
 
-
-3. Include the actual algorithm (basically rewritten from paper and lecture slides by mahoney) and mention the difficulty in finding an actual explanation of the implementation
-
-    --> Also include the algorithm for naive matrix mult like in mahoney
-        lecture slides
-
-    --> include that sum of outer products summation
-
-
-2. Include the theorem 1 and lemmas which provide a proof for the bounds of error, remark how could not validate this in the implementation
-
-    --> All this math will fill up pages and is basically just copying it from the papers
-
-
-4. Mention how paper focused on proofs for error bounds and comp. complexity (GIVE THE COMPLEXITY, CITE FROM PAPER) rather than the
-actual implementation.
+Algorithm \ref{alg:approx} demonstrates the approximate matrix multiplication method defined by Mahoney in the set of lecture slides for the courses taught at Stanford\cite{mahoneyCS369M, mahoneyCS294}. With the algorithm provided it was possible to implement the approximate matrix multiplication algorithm in Python, a major hurdle in accomplishing all of the desired goals. Understanding the approximate matrix multiplication method proved to be the greatest challenge of the project and required an incredibly detailed literature review of all of the authors of the original papers and their subsequent publications. Even so, it was not until a set of lecture slides for an undergraduate course taught by Mahoney at Stanford was discovered before the algorithm was completely understood. 
 
 
 
@@ -269,6 +253,10 @@ actual implementation.
 
 
 \section{Final Results}
+
+The test framework was expanded to add support for executing the approximate matrix multiplication benchmarks in addition to displaying the execution time for the results of each test. The test plan was updated to include new tests using more realistic data with adjacency matrices, which record the vertices and edges of a graph, and stochastic matrices which represent a stochastic system such as those represented by a Markov chain\cite{yegnanarayanan2013application}.
+
+In order to ensure as accurate results as possible for the experiments the test environment was controlled as much as possible to limit external sources of error. The test platform used was a Lenovo i7 Thinkpad, with four cores (with hyper-threading) at 2.8 GHz, due to limitations and inconsistencies using SHARCNET. All processes were terminated in order to limit any external influence on performance results and the benchmark environment was executed on 10 separate instances, each execution with 10 trials performed for each benchmark tested, to ensure accurate results and a large statistical sample.
 
 - discuss test framework from previous sections
 
